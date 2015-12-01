@@ -1,20 +1,34 @@
-Generic Startup
-=========
+## coreshot
 
-Forked from the tutorial written here: here:(http://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world).
+This project is currently in early development, and does not function at all at
+this stage.
 
-Sets up the basic file structur and boiler plate for a python flask webapp, inside a virtualenv
+## Synopsis
 
+A tool to monitor the realtime condition of inbound marked runs on ski resorts,
+using user generated content. A Waze for skiing.
 
-Installation
-------------
+## Motivation
 
-The tutorial referenced above explains how to setup a virtual environment with all the required modules.
+Snow conditions on ski runs change from hour to hour, and resort management is
+rarely motivated to provide accurate and honest ski reports. Skiers and
+snowboarders are in the best position to provide unbiased, constantly updated
+information on the ever changing conditions, and potential hazards on ski runs.
 
-Running
--------
+## Installation
 
-To run the application in the development web server just execute `run.py` with the Python interpreter from the flask virtual environment.
+This is a flask app, with a postgres back end. Details to follow.
 
-# flask_startup
-# flask_startup
+## API Reference
+
+an API will be presented, but does not yet exist.
+
+## Tests
+
+Tests will be created, but do not yet exist.
+
+## Contributors
+
+**Paul Hoefgen** paul.hoefgen at gmail.
+
+## License
