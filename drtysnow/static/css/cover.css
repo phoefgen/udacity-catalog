@@ -27,7 +27,7 @@ a:hover {
 html,
 body {
   height: 100%;
-  background-color: #d6d6d6;
+  background-color: #8daba9;
 }
 body {
   color: #fff;
@@ -43,6 +43,9 @@ img.centered{
 
 .masthead-brand{
   font-family: 'Righteous';
+  color: white;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+
 }
 
 .center {

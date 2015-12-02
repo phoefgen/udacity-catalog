@@ -5,10 +5,13 @@ an account pre-launch-->
 
 {% block header %}
   {% include "header.html"%}
+  <!--Override settings imported from header with specific CSS files.-->
   <link rel="stylesheet"
-              href="{{ url_for('static', filename='css/cover.css') }}">
+                     href="{{ url_for('static', filename='css/landing.css') }}">
+  <link rel="stylesheet"
+                       href="{{ url_for('static', filename='css/cover.css') }}">
 {% endblock %}
-{% block title %} Coming Soon! {% endblock %}
+{% block title %}Coming Soon!{% endblock %}
 
 {% block navbar %}
   {% include "navbar-closed.html"%}
@@ -17,16 +20,17 @@ an account pre-launch-->
 {% block content %}
   <div class="container center">
       <div class="cover-container">
-      <img src="static/images/cover_page_graphic.jpg" class="img-responsive img-rounded center">
+      <img src="static/images/cover_page_graphic.jpg" class="img-responsive img-rounded center drop">
       <div class="inner">
               <h1 class="cover-heading">More Powder, less Rocks. </h1>
               <p class="lead">Real time, user generated, hyper local run condition reports.</p>
               <p class="lead">
-                <a href="#" class="btn btn-lg btn-default">Sign Up</a>
+                <a href="#" class="btn btn-lg btn-default">Signup for Updates!</a>
               </p>
       </div>
     </div>
   </div>
+  {% include "marketing.html" %}
 {% endblock content %}
 {%block footer %}
   {% include "footer.html"%}
