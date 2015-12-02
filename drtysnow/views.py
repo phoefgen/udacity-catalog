@@ -15,7 +15,7 @@ def prelaunch():
 
 # Content Creation pages.
 
-@drtysnow.route('<int:user_id>/modify_profile')
+@drtysnow.route('/<int:user_id>/modify_profile')
 def register_user(user_id):
     return "Modify {}'s profile page Not implemented".format(user_id)
 
@@ -27,26 +27,26 @@ def register_resort():
 def new_run(resort_name):
     return "Adding runs to {} is not implemented yet.".format(resort_name)
 
-@drtysnow.route('/resorts/<string:resort_name>/<sting:run_name>')
+@drtysnow.route('/resorts/<string:resort_name>/<string:run_name>')
 def run_rating(resort_name, run_name):
     return "Adding ratings to {} at {} is not yet implemented".format(run_name,
                                                                    resort_name)
 
-@drtysnow.route('')
-
 #View Content pages.
-@drtysnow.route('/<int:user_id>/user')
+
+@drtysnow.route('/profile/<int:user_id>')
 def show_user(user_id):
     return "User profile for {} not implemented yet.".format(user_id)
 
 
-@drtysnow.route('/<int:resort_id>/resort')
+@drtysnow.route('/resort/<int:resort_id>')
 def show_resort(resort_id):
     return "Resort profile for {} not implemented yet".format(resort_id)
 
-@drtysnow.route('/<int:resort_id>/<int:run_id>/show')
+@drtysnow.route('/run/<int:resort_id>/<int:run_id>')
 def show_run(resort_id, run_id):
-    return "Resort profile for {} not implemented yet".format(resort_id)
+    return "Run profile for {} not implemented yet".format(resort_id)
 
+@drtysnow.route('/fourohfour')
 def fourohfour():
     return "Page Not found."
