@@ -1,17 +1,28 @@
+<!-- This page is the public facing website for people who are not logged in-->
 {% extends "master_layout.html" %}
-{% block title %}Home{% endblock %}
-{% block head %}
-  {{ super() }}
+
+{% block header %}
+  {% include "header.html"%}
+  <!--Override settings imported from header with specific CSS files.-->
   <link rel="stylesheet"
-              href="{{ url_for('static', filename='css/landing.css') }}">
-  </style>
+                     href="{{ url_for('static', filename='css/landing.css') }}">
+{% endblock %}
+{% block title %}Home{% endblock %}
+
+{% block navbar %}
+  {% include "navbar.html"%}
 {% endblock %}
 
 {% block content %}
   <div class="header-img row">
-    <img class=" img-responsive center-block" src="static/images/header.jpg" alt="skiski">
+    <img class=" img-responsive center-block" src="static/images/header.jpg"
+                                                              alt="ski village">
   </div>
-
-  {% includes "marketing.html"%}
-
+  {% include "marketing.html" %}
+{% endblock content %}
+{%block footer %}
+  {% include "footer.html"%}
+{% endblock%}
+{% block scripts %}
+  {% include "scripts.html"%}
 {% endblock %}
