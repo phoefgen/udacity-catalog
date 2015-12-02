@@ -1,2 +1,2 @@
-from coreshot import coreshot
-coreshot.run(debug=True)
+from drtysnow import drtysnow
+drtysnow.run(debug=True)

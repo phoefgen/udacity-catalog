@@ -1,4 +1,4 @@
-## coreshot
+## DRTYsnow
 
 This project is currently in early development, and does not function at all at
 this stage.
