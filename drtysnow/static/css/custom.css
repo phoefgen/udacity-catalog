@@ -1,11 +1,49 @@
-.navbar-brand{
-  font-family: 'Righteous', cursive;
-}
 
-.navbar-nav{
-  font-family: 'Roboto', sans-serif;
-}
 
 footer{
   text-align: center;
+	width:100%;
+	position:relative;
+	left:0;
+  bottom: 0;
+  height: 100px;
+}
+
+body {
+  padding-bottom: 40px;
+  color: #5a5a5a;
+}
+
+/* Special class on .container surrounding .navbar, used for positioning it into place. */
+.navbar-wrapper {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 20;
+}
+
+.navbar-fixed-top {
+  background-color: rgba(255, 255, 255, 0.9);;
+}
+/* Flip around the padding for proper display in narrow viewports */
+.navbar-wrapper > .container {
+  padding-right: 0;
+  padding-left: 0;
+}
+.navbar-wrapper .navbar {
+  padding-right: 5%;
+  padding-left: 5%;
+}
+.navbar-wrapper .navbar .container {
+  width: auto;
+}
+
+/* Navbar styling */
+
+.navbar-brand{
+  font-family: 'Righteous', cursive;
+}
+.navbar-nav{
+  font-family: 'Roboto', sans-serif;
 }

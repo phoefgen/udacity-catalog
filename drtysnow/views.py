@@ -2,11 +2,15 @@ from drtysnow import drtysnow
 from flask import render_template
 
 # Landing pages.
-
 @drtysnow.route('/')
 @drtysnow.route('/index')
 def index():
-    return render_template('master_layout.html')
+    return render_template('cover.html')
+
+
+@drtysnow.route('/landing')
+def landing():
+    return render_template('landing.html')
 
 @drtysnow.route('/prelaunch')
 def prelaunch():
