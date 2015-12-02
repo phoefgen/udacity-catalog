@@ -1,36 +1,36 @@
+<!-- This page is to be used on the public facing website to block people without
+an account pre-launch-->
+
 {% extends "master_layout.html" %}
-{% block head %}
-  {{ super() }}
+
+{% block header %}
+  {% include "header.html"%}
   <link rel="stylesheet"
               href="{{ url_for('static', filename='css/cover.css') }}">
 {% endblock %}
-<div class="container center">
-    <div class="cover-container">
-    {% block navbar %}
-          <div class="masthead clearfix">
-            <div class="inner">
-              <h3 class="masthead-brand">DRTYSNOW</h3>
-              <nav>
-                <ul class="nav masthead-nav">
-                  <li><a href="#">Login</a></li>
-                  <li><a href="#">Contact</a></li>
-                </ul>
-              </nav>
-            </div>
-          </div>
-    {% endblock navbar%}
+{% block title %} Coming Soon! {% endblock %}
 
-    {% block content %}
-    <img src="static/images/cover_page_graphic.jpg" class="img-responsive img-rounded center">
+{% block navbar %}
+  {% include "navbar-closed.html"%}
+{% endblock %}
 
-    <div class="inner">
-            <h1 class="cover-heading">More Powder, less Rocks. </h1>
-            <p class="lead">Real time, user generated, hyper local run condition reports.</p>
-            <p class="lead">
-              <a href="#" class="btn btn-lg btn-default">Sign Up</a>
-            </p>
+{% block content %}
+  <div class="container center">
+      <div class="cover-container">
+      <img src="static/images/cover_page_graphic.jpg" class="img-responsive img-rounded center">
+      <div class="inner">
+              <h1 class="cover-heading">More Powder, less Rocks. </h1>
+              <p class="lead">Real time, user generated, hyper local run condition reports.</p>
+              <p class="lead">
+                <a href="#" class="btn btn-lg btn-default">Sign Up</a>
+              </p>
+      </div>
     </div>
   </div>
-  
-</div>
-    {% endblock content %}
+{% endblock content %}
+{%block footer %}
+  {% include "footer.html"%}
+{% endblock%}
+{% block scripts %}
+  {% include "scripts.html"%}
+{% endblock %}
