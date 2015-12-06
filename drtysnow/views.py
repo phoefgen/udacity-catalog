@@ -1,6 +1,21 @@
 from drtysnow import drtysnow
 from flask import render_template
 
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from dbconn import connect, create_user, create_resort, create_runs
+from dbconn import create_reviews, update, delete
+from dbsetup import Base, Resorts, Users, Runs, Reviews
+
+#Connect to the database:
+def connect():
+    engine = create_engine('sqlite:///drtysnow/drtysnow.db')
+    Base.metadata.bind = engine
+    DBSession = sessionmaker(bind=engine)
+    s = DBSession()
+    return s
+
 # Landing pages.
 @drtysnow.route('/')
 @drtysnow.route('/index')
@@ -40,11 +55,20 @@ def run_rating(resort_name, run_name):
 
 @drtysnow.route('/profile/<int:user_id>')
 def show_user(user_id):
-    return "User profile for {} not implemented yet.".format(user_id)
+    engine = create_engine('sqlite:///drtysnow.db')
+    Base.metadata.bind = engine
+    DBSession = sessionmaker(bind=engine)
+    s = DBSession()
+
+    result = s.query(Users).first()
+    return result.first_name
+
+
 
 
 @drtysnow.route('/resort/<int:resort_id>')
 def show_resort(resort_id):
+
     return "Resort profile for {} not implemented yet".format(resort_id)
 
 @drtysnow.route('/run/<int:resort_id>/<int:run_id>')
@@ -54,3 +78,13 @@ def show_run(resort_id, run_id):
 @drtysnow.route('/fourohfour')
 def fourohfour():
     return "Page Not found."
+
+def main():
+    # test db connection
+    s = connect()
+    print s
+
+
+
+if __name__ == '__main__':
+    main()
