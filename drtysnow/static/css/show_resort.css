@@ -1,0 +1,21 @@
+.title{
+  padding-top: 100px;
+
+}
+
+.headshot{
+  max-width: 100%;
+}
+
+.bumper{
+  padding-top: 10em;
+}
+
+.main_profile{
+  padding: .5em;
+}
+
+.boxed{
+  border: 3px #e4e4e4 solid;
+  padding: .5em;
+}

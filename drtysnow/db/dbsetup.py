@@ -21,7 +21,10 @@ class Resorts(Base):
     resort_name = Column(
         String(100),
         nullable = False
-    )
+        )
+
+    runs = relationship("Runs", backref="runs")
+
 
 class Users(Base):
     __tablename__ = 'users'

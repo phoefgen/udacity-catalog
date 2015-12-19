@@ -1,8 +1,8 @@
 <!-- This page is the public facing website for people who are not logged in-->
-{% extends "master_layout.html" %}
+{% extends "/all_pages/master_layout.html" %}
 
 {% block header %}
-  {% include "header.html"%}
+  {% include "all_pages/header.html"%}
   <!--Override settings imported from header with specific CSS files.-->
   <link rel="stylesheet"
                      href="{{ url_for('static', filename='css/landing.css') }}">
@@ -10,7 +10,7 @@
 {% block title %}Home{% endblock %}
 
 {% block navbar %}
-  {% include "navbar.html"%}
+  {% include "all_pages/navbar.html"%}
 {% endblock %}
 
 {% block content %}
@@ -18,11 +18,11 @@
     <img class=" img-responsive center-block" src="static/images/header.jpg"
                                                               alt="ski village">
   </div>
-  {% include "marketing.html" %}
+  {% include "pre_login/marketing.html" %}
 {% endblock content %}
 {%block footer %}
-  {% include "footer.html"%}
+  {% include "all_pages/footer.html"%}
 {% endblock%}
 {% block scripts %}
-  {% include "scripts.html"%}
+  {% include "all_pages/scripts.html"%}
 {% endblock %}

@@ -1,4 +1,4 @@
-''' This class creates a database connection, and provides methods to
+''' Creates a database connection, and provides methods to
     modify the db tables. Read operations are currently handled in the calling
     code, directly on the instance that is returned from this class.
     Author: Paul Hoefgen
@@ -14,10 +14,11 @@ from dbsetup import Base, Resorts, Users, Runs, Reviews
 
 def connect():
     ''' Return a DB connection '''
-    engine = create_engine('sqlite:///drtysnow.db')
+    engine = create_engine('sqlite:///drtysnow/data/drtysnow.db')
     Base.metadata.bind = engine
-    database_session = sessionmaker(bind=engine)
-    return database_session
+    DBSession = sessionmaker(bind=engine)
+    s = DBSession()
+    return s
 
 def create_user(db_session, fname, lname, favorite_resort_id,admin,email):
     new_user = Users(first_name = fname,
@@ -52,7 +53,8 @@ def create_reviews(db_session, run_id, rating, user_id, top_hazard, mid_hazard,
                          user_id = user_id,
                          top_hazard = top_hazard,
                          mid_hazard = mid_hazard,
-                         bot_hazard = bot_hazard)
+                         bot_hazard = bot_hazard,
+                         comments = comments)
     db_session.add(new_review)
     db_session.commit()
     return

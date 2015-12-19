@@ -4,28 +4,21 @@ from flask import render_template
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from dbconn import connect, create_user, create_resort, create_runs
-from dbconn import create_reviews, update, delete
+from db.dbconn import connect, create_user, create_resort, create_runs
+from db.dbconn import create_reviews, update, delete
 from dbsetup import Base, Resorts, Users, Runs, Reviews
 
-#Connect to the database:
-def connect():
-    engine = create_engine('sqlite:///drtysnow/drtysnow.db')
-    Base.metadata.bind = engine
-    DBSession = sessionmaker(bind=engine)
-    s = DBSession()
-    return s
 
 # Landing pages.
 @drtysnow.route('/')
 @drtysnow.route('/index')
 def index():
-    return render_template('cover.html')
+    return render_template('pre_login/cover.html')
 
 
 @drtysnow.route('/landing')
 def landing():
-    return render_template('landing.html')
+    return render_template('pre_login/landing.html')
 
 @drtysnow.route('/prelaunch')
 def prelaunch():
@@ -55,21 +48,47 @@ def run_rating(resort_name, run_name):
 
 @drtysnow.route('/profile/<int:user_id>')
 def show_user(user_id):
-    engine = create_engine('sqlite:///drtysnow.db')
-    Base.metadata.bind = engine
-    DBSession = sessionmaker(bind=engine)
-    s = DBSession()
+    '''
+    Takes an integer from the URL, and populates a profile page for the
+    user with the same ID in the users table.
+    '''
+    # Get basic user details.
+    profile_result = connect().query(Users).get(user_id)
+    profile_details = profile_result.__dict__
 
-    result = s.query(Users).first()
-    return result.first_name
+    #translate resort ID into resort string.
+    resort_result = connect().query(Resorts).get(
+                                         profile_details['favourite_resort_id'])
+    resort_details = resort_result.__dict__
 
+    #Generate a list of dict's with reviews by user.
+    reviews_result = connect().query(Reviews).filter_by(
+                                                        user_id = user_id).all()
+    review_list = []
 
+    for review in reviews_result:
+        # convert run id to resort name:
+        resort_id  = connect().query(Runs).get(review.run_id).resort_id
+        resort_name = connect().query(Resorts).get(resort_id).resort_name
 
+        r = {}
+        r["resort_name"] = resort_name
+        r["run_name"] = connect().query(Runs).get(review.run_id).run_name
+        r["rating"] = review.rating
+        r["comments"] = review.comments
+        review_list.append(r)
+
+    return render_template('profile/show_profile.html',
+                               fname = profile_details['first_name'],
+                               lname = profile_details['last_name'],
+                               email = profile_details['email_address'],
+                               favourite_resort = resort_details['resort_name'],
+                               reviews = review_list)
 
 @drtysnow.route('/resort/<int:resort_id>')
 def show_resort(resort_id):
 
-    return "Resort profile for {} not implemented yet".format(resort_id)
+    return render_template('profile/show_resort.html')
 
 @drtysnow.route('/run/<int:resort_id>/<int:run_id>')
 def show_run(resort_id, run_id):
@@ -78,13 +97,3 @@ def show_run(resort_id, run_id):
 @drtysnow.route('/fourohfour')
 def fourohfour():
     return "Page Not found."
-
-def main():
-    # test db connection
-    s = connect()
-    print s
-
-
-
-if __name__ == '__main__':
-    main()

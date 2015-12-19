@@ -1,10 +1,10 @@
 <!-- This page is to be used on the public facing website to block people without
 an account pre-launch-->
 
-{% extends "master_layout.html" %}
+{% extends "all_pages/master_layout.html" %}
 
 {% block header %}
-  {% include "header.html"%}
+  {% include "all_pages/header.html"%}
   <!--Override settings imported from header with specific CSS files.-->
   <link rel="stylesheet"
                      href="{{ url_for('static', filename='css/landing.css') }}">
@@ -14,7 +14,7 @@ an account pre-launch-->
 {% block title %}Coming Soon!{% endblock %}
 
 {% block navbar %}
-  {% include "navbar-closed.html"%}
+  {% include "all_pages/navbar-closed.html"%}
 {% endblock %}
 
 {% block content %}
@@ -30,11 +30,11 @@ an account pre-launch-->
       </div>
     </div>
   </div>
-  {% include "marketing.html" %}
+  {% include "pre_login/marketing.html" %}
 {% endblock content %}
 {%block footer %}
-  {% include "footer.html"%}
+  {% include "all_pages/footer.html"%}
 {% endblock%}
 {% block scripts %}
-  {% include "scripts.html"%}
+  {% include "all_pages/scripts.html"%}
 {% endblock %}
