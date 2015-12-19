@@ -21,7 +21,9 @@
   <div class = "main_profile">
     <div class="row boxed well">
       <div class="col-md-2">
-          <img class="img-responsive headshot" src="{{ url_for('static', filename='images/ski_headshot.jpg')}}" alt="user headshot">
+          <img class="img-responsive headshot"
+                src="{{ url_for('static', filename='images/ski_headshot.jpg')}}"
+                                                            alt="user headshot">
       </div>
       <div class="col-md-10">
         <h1>{{fname}} {{lname}}</h1>
@@ -50,7 +52,10 @@
       <div class="col-md-4"></div>
       <div class="col-md-8 boxed well">
         <div class="table">
-          <table cellspacing="0" cellpadding="0" width="100%" class="table table-striped">
+          <table cellspacing="0"
+                 cellpadding="0"
+                 width="100%"
+                 class="table table-striped">
             <tr>
               <td><strong>Resort</strong></td>
               <td><strong>Run</strong></td>

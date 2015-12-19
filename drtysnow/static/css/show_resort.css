@@ -19,3 +19,11 @@
   border: 3px #e4e4e4 solid;
   padding: .5em;
 }
+
+.hero-pic{
+  padding: .5em;
+}
+
+.resortname{
+  text-align: center;
+}

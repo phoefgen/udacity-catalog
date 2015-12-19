@@ -65,7 +65,6 @@ def show_user(user_id):
     reviews_result = connect().query(Reviews).filter_by(
                                                         user_id = user_id).all()
     review_list = []
-
     for review in reviews_result:
         # convert run id to resort name:
         resort_id  = connect().query(Runs).get(review.run_id).resort_id
@@ -87,8 +86,14 @@ def show_user(user_id):
 
 @drtysnow.route('/resort/<int:resort_id>')
 def show_resort(resort_id):
+    # Get details abou the specified resort:
+    resort_details = connect().query(Resorts).get(resort_id).__dict__
 
-    return render_template('profile/show_resort.html')
+    # Get details about runs on the specified resort:
+    run_details = connect().query(Runs).filter_by(resort_id = resort_id).all()
+    return render_template('profile/show_resort.html',
+                            resort_name = resort_details["resort_name"],
+                            runs = run_details)
 
 @drtysnow.route('/run/<int:resort_id>/<int:run_id>')
 def show_run(resort_id, run_id):
