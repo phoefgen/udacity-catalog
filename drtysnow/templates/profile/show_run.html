@@ -1,0 +1,96 @@
+<!-- This page displays profile details for a specified resort #-->
+{% extends "/all_pages/master_layout.html" %}
+
+{% block header %}
+  {% include "all_pages/header.html"%}
+  <!--Override settings imported from header with specific CSS files. -->
+ <link rel="stylesheet"
+                href="{{ url_for('static', filename='css/show_run.css') }}">
+{% endblock %}
+{% block title %}Run Review: {run_name}{% endblock %}
+
+{% block navbar %}
+  {% include "all_pages/navbar.html"%}
+{% endblock %}
+
+{% block content %}
+<div class ="bumper"></div>
+
+<div class="container">
+  <div class = "main_profile">
+    <div class="row">
+      <div class="col-md-12 resortname">
+        <h1>{{run_name}}</h1>
+      </div>
+      <div class="col-md-10"></div>
+    </div>
+    <div class="row">
+      <div class="col-md-1"></div>
+      <div class="col-md-10 hero-pic">
+  <!--      <img class="img-responsive"
+             src="{{ url_for('static', filename='images/resort_overview.jpg')}}"
+             alt="resort summary"> -->
+      </div>
+      <div class="col-md-1"></div>
+    </div>
+  </div>
+  <div class="runs">
+    <div class="row">
+      <div class="col-md-12 ">
+        <h3> All Reviews for {{run_name}}</h3>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12  well">
+        <div class="table">
+          <table cellspacing="0"
+                 cellpadding="0"
+                 width="100%"
+                class="table">
+            {% for summary in run_summary %}
+              <tr>
+                <td><strong><h2>Rating: {{summary["rating"]}}</h2> </strong></td>
+                <td><strong>Upper Hazard</strong></td>
+                <td>{% if summary["top_hazard"] %}
+                  <h4>Yes</h4>
+                  {% else%}
+                    <h4>No</h4>
+                 {% endif %}
+                 </td>
+                <td><strong>Mid Hazard</strong></td>
+                <td>{% if summary["mid_hazard"] %}
+                      <h4>Yes</h4>
+                    {% else%}
+                      <h4>No</h4>
+                    {% endif %}
+                 </td>
+                <td><strong>Lower Hazard</strong></td>
+                <td>{% if summary["bot_hazard"] %}
+                      <h4>Yes</h4>
+                    {% else%}
+                      <h4>No</h4>
+                    {% endif %}
+                 </td>
+               </tr>
+               <tr>
+                <td><strong>Comments:</strong> {{summary["comments"]}}</td>
+              </tr>
+
+
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+{%block footer %}
+<div class ="bumper"></div>
+
+  {% include "all_pages/footer.html"%}
+{% endblock%}
+{% block scripts %}
+  {% include "all_pages/scripts.html"%}
+{% endblock %}

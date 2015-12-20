@@ -86,18 +86,42 @@ def show_user(user_id):
 
 @drtysnow.route('/resort/<int:resort_id>')
 def show_resort(resort_id):
+    '''
+    Generates a profile page for the given resort, with a summary of all Runs
+    '''
+
     # Get details abou the specified resort:
     resort_details = connect().query(Resorts).get(resort_id).__dict__
 
     # Get details about runs on the specified resort:
     run_details = connect().query(Runs).filter_by(resort_id = resort_id).all()
+
     return render_template('profile/show_resort.html',
                             resort_name = resort_details["resort_name"],
                             runs = run_details)
 
-@drtysnow.route('/run/<int:resort_id>/<int:run_id>')
-def show_run(resort_id, run_id):
-    return "Run profile for {} not implemented yet".format(resort_id)
+@drtysnow.route('/run/<int:run_id>')
+def show_run(run_id):
+    '''
+    Present all details for a specified run.
+    '''
+    run_summary = []
+    run_reviews = connect().query(Reviews).filter_by(run_id = run_id).all()
+    run_name = connect().query(Runs).get(run_id).run_name
+    for review in run_reviews:
+        r = {}
+        r["rating"] = review.rating
+        r["comments"] = review.comments
+        r["top_hazard"] = review.top_hazard
+        r["mid_hazard"] = review.top_hazard
+        r["bot_hazard"] = review.bot_hazard
+        run_summary.append(r)
+
+        print run_summary
+
+    return render_template('profile/show_run.html',
+                          run_name = connect().query(Runs).get(run_id).run_name,
+                          run_summary = run_summary)
 
 @drtysnow.route('/fourohfour')
 def fourohfour():
