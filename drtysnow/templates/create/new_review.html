@@ -1,0 +1,37 @@
+<!-- This page displays profile details for a specified resort #-->
+{% extends "/all_pages/master_layout.html" %}
+
+{% block header %}
+  {% include "all_pages/header.html"%}
+  <!--Override settings imported from header with specific CSS files. -->
+ <link rel="stylesheet"
+                href="{{ url_for('static', filename='css/new_review.css') }}">
+{% endblock %}
+{% block title %}Run Review: {run_name}{% endblock %}
+
+{% block navbar %}
+  {% include "all_pages/navbar.html"%}
+{% endblock %}
+
+{% block content %}
+<div class="bumper"></div>
+  <div class="row padded">
+    <div class= "col-md-8">
+      <h1>Create Review:</h1>
+      <form action="" method="post" name="login">
+          {{ form.hidden_tag() }}
+          <p>Run Name:  {{ form.run_name(size=80)}}<br></p>
+          <p>Resort Name: {{ form.resort_name(size=80)}}</p>
+          <p><input type="submit" value="submit"></p>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+{%block footer %}
+<div class ="bumper"></div>
+  {% include "all_pages/footer.html"%}
+{% endblock%}
+{% block scripts %}
+  {% include "all_pages/scripts.html"%}
+{% endblock %}

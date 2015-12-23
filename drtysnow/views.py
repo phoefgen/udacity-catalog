@@ -8,7 +8,7 @@ from db.dbconn import connect, create_user, create_resort, create_runs
 from db.dbconn import create_reviews, update, delete
 from db.dbsetup import Base, Resorts, Users, Runs, Reviews
 
-
+from .forms.forms import RunReview
 # Landing pages.
 @drtysnow.route('/')
 @drtysnow.route('/index')
@@ -39,10 +39,10 @@ def register_resort():
 def new_run(resort_name):
     return "Adding runs to {} is not implemented yet.".format(resort_name)
 
-@drtysnow.route('/resorts/<string:resort_name>/<string:run_name>')
+@drtysnow.route('/resorts/reviews/<string:resort_name>/<string:run_name>')
 def run_rating(resort_name, run_name):
-    return "Adding ratings to {} at {} is not yet implemented".format(run_name,
-                                                                   resort_name)
+    form = RunReview()
+    return render_template('create/new_review.html',form=form)
 
 #View Content pages.
 
