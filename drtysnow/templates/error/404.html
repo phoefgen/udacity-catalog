@@ -1,0 +1,31 @@
+<!-- This page displays profile details for a specified resort #-->
+{% extends "/all_pages/master_layout.html" %}
+
+{% block header %}
+  {% include "all_pages/header.html"%}
+  <!--Override settings imported from header with specific CSS files. -->
+ <link rel="stylesheet"
+                href="{{ url_for('static', filename='css/show_run.css') }}">
+{% endblock %}
+{% block title %}Run Review: {run_name}{% endblock %}
+
+{% block navbar %}
+  {% include "all_pages/navbar.html"%}
+{% endblock %}
+
+{% block content %}
+<div class ="bumper"></div>
+
+<div class="container">
+ <h1>The Page was not found on this site. (404)</h1>
+</div>
+
+{% endblock content %}
+{%block footer %}
+<div class ="bumper"></div>
+
+  {% include "all_pages/footer.html"%}
+{% endblock%}
+{% block scripts %}
+  {% include "all_pages/scripts.html"%}
+{% endblock %}

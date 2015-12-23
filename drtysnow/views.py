@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 
 from db.dbconn import connect, create_user, create_resort, create_runs
 from db.dbconn import create_reviews, update, delete
-from dbsetup import Base, Resorts, Users, Runs, Reviews
+from db.dbsetup import Base, Resorts, Users, Runs, Reviews
 
 
 # Landing pages.
@@ -108,6 +108,7 @@ def show_run(run_id):
     run_summary = []
     run_reviews = connect().query(Reviews).filter_by(run_id = run_id).all()
     run_name = connect().query(Runs).get(run_id).run_name
+
     for review in run_reviews:
         r = {}
         r["rating"] = review.rating
@@ -117,12 +118,10 @@ def show_run(run_id):
         r["bot_hazard"] = review.bot_hazard
         run_summary.append(r)
 
-        print run_summary
-
     return render_template('profile/show_run.html',
                           run_name = connect().query(Runs).get(run_id).run_name,
                           run_summary = run_summary)
 
-@drtysnow.route('/fourohfour')
-def fourohfour():
-    return "Page Not found."
+@drtysnow.errorhandler(404)
+def page_not_found(e):
+    return render_template('error/404.html'), 404
