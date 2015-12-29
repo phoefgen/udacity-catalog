@@ -1,5 +1,6 @@
 # import form processors:
 from flask.ext.wtf import Form
+
 # import field types:
 from wtforms import StringField, BooleanField, IntegerField, SelectField
 from wtforms import FileField, TextAreaField
@@ -16,5 +17,4 @@ class CreateResort(Form):
     name = StringField('name', validators=[DataRequired()])
     location = StringField('location', validators=[DataRequired()])
     image = FileField('image')
-    run_number = IntegerField('run_number', validators=[DataRequired()])
     summary = TextAreaField('summary', validators=[DataRequired()])

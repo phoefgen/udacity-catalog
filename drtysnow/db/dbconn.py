@@ -30,8 +30,10 @@ def create_user(db_session, fname, lname, favorite_resort_id,admin,email):
     db_session.commit()
     return
 
-def create_resort(db_session, name):
-    new_resort = Resorts(name = name)
+def create_resort(db_session, name, location, summary):
+    new_resort = Resorts(resort_name=name,
+                         resort_location=location,
+                         resort_summary=summary)
 
     db_session.add(new_resort)
     db_session.commit()

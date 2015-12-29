@@ -57,10 +57,20 @@ def register_resort():
     process the results of the form.
     '''
     form = CreateResort()
+
     # Check to see if form data is valid. If not, render template
+    # if so, write the form data to the database, and redirect to the profile
+    # page of the newly created resort.
+    
     if form.validate_on_submit():
-        print form.name.data
-        return redirect('/landing')
+        name = str(form.name.data)
+        location = str(form.location.data)
+        summary = str(form.summary.data)
+
+        c = connect()
+        n = create_resort(c, name, location, summary)
+        return redirect('/resort/1')
+
     return render_template('create/new_resort.html',form=form)
 
 @drtysnow.route('/resorts/<string:resort_name>/new_run')

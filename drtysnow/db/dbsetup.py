@@ -23,6 +23,21 @@ class Resorts(Base):
         nullable = False
         )
 
+    resort_location = Column(
+        String(100),
+        nullable = False
+        )
+
+    resort_image = Column(
+        String(100),
+        nullable = True
+        )
+
+    resort_summary = Column(
+        String(100),
+        nullable = False
+    )
+
     runs = relationship("Runs", backref="runs")
 
 
