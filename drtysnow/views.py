@@ -1,5 +1,5 @@
 from drtysnow import drtysnow
-from flask import render_template
+from flask import render_template, flash, redirect, url_for, request
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -8,43 +8,82 @@ from db.dbconn import connect, create_user, create_resort, create_runs
 from db.dbconn import create_reviews, update, delete
 from db.dbsetup import Base, Resorts, Users, Runs, Reviews
 
-from .forms.forms import RunReview
+from .forms.forms import RunReview, CreateResort
+################################################################################
 # Landing pages.
+################################################################################
+
 @drtysnow.route('/')
 @drtysnow.route('/index')
 def index():
+    '''
+    First page that users hit, after logging into the system. Restricted to users
+    and admins only.
+    '''
     return render_template('pre_login/cover.html')
 
 
 @drtysnow.route('/landing')
 def landing():
+    '''
+    Handle users that are not logged in, who initially encounter the site.
+    '''
     return render_template('pre_login/landing.html')
 
 @drtysnow.route('/prelaunch')
 def prelaunch():
+    '''
+    Returns a teaser page. This is so the site can be hosted on the public
+    internet and log traffic, but not be actually accessable during development.
+    '''
     return "Pre-launch page Not implemented"
 
-
+################################################################################
 # Content Creation pages.
+################################################################################
 
 @drtysnow.route('/<int:user_id>/modify_profile')
 def register_user(user_id):
+    '''
+    Return a form, to allow a non-user to enter a new resort, and then process
+    the results of the form.
+    '''
     return "Modify {}'s profile page Not implemented".format(user_id)
 
-@drtysnow.route('/register_resort')
+@drtysnow.route('/register_resort/', methods=['GET', 'POST'])
 def register_resort():
-    return "Register_resort Not implemented"
+    '''
+    Return a form, to allow an administrator to enter a new resort, and then
+    process the results of the form.
+    '''
+    form = CreateResort()
+    # Check to see if form data is valid. If not, render template
+    if form.validate_on_submit():
+        print form.name.data
+        return redirect('/landing')
+    return render_template('create/new_resort.html',form=form)
 
 @drtysnow.route('/resorts/<string:resort_name>/new_run')
 def new_run(resort_name):
+    '''
+    Return a form, to allow an administrator to enter a new ski run to an
+    existing resort, and then process the results of the form.
+    '''
     return "Adding runs to {} is not implemented yet.".format(resort_name)
 
 @drtysnow.route('/resorts/reviews/<string:resort_name>/<string:run_name>')
 def run_rating(resort_name, run_name):
+    '''
+    Return a form, to allow the user to enter a new review of a ski run, and then
+    process the results of the form.
+    '''
     form = RunReview()
+
     return render_template('create/new_review.html',form=form)
 
+################################################################################
 #View Content pages.
+################################################################################
 
 @drtysnow.route('/profile/<int:user_id>')
 def show_user(user_id):
@@ -122,6 +161,14 @@ def show_run(run_id):
                           run_name = connect().query(Runs).get(run_id).run_name,
                           run_summary = run_summary)
 
+################################################################################
+# Utility Views.
+################################################################################
+
 @drtysnow.errorhandler(404)
 def page_not_found(e):
+    '''
+    Handle broken links, and badly guessed links.
+    '''
+
     return render_template('error/404.html'), 404

@@ -1,0 +1,47 @@
+<!-- This page displays profile details for a specified resort #-->
+{% extends "/all_pages/master_layout.html" %}
+
+{% block header %}
+  {% include "all_pages/header.html"%}
+  <!--Override settings imported from header with specific CSS files. -->
+ <link rel="stylesheet"
+                href="{{ url_for('static', filename='css/new_resort.css') }}">
+{% endblock %}
+{% block title %}Create Resort:{% endblock %}
+
+{% block navbar %}
+  {% include "all_pages/navbar.html"%}
+{% endblock %}
+
+{% block content %}
+  <div class="row padded">
+    <div class="col-md-1">
+    </div>
+    <div class= "col-md-3">
+      <h1>Create Resort:</h1>
+      <br>
+    </div>
+  </div>
+  <div class ="row">
+    <div class="col-md-3">
+    </div>
+      <div class= "col-md-9">
+        <form action="http://127.0.0.1:5000/register_resort/" method="post">                                  {{ form.hidden_tag()}}
+            <p>Name:            <br>{{ form.name(size=80)}}</p>
+            <p>Location:        <br>{{ form.location(size=80)}}</p>
+            <p>Number of Runs:: <br>{{ form.run_number(size=3)}}</p>
+            <p>Description:     <br>{{ form.summary(size=500)}}</p>
+            <br>
+            <input type="submit" value="submit">
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
+{%block footer %}
+<div class ="bumper"></div>
+  {% include "all_pages/footer.html"%}
+{% endblock%}
+{% block scripts %}
+  {% include "all_pages/scripts.html"%}
+{% endblock %}

@@ -1,9 +1,20 @@
+# import form processors:
 from flask.ext.wtf import Form
-from wtforms import StringField, BooleanField
+# import field types:
+from wtforms import StringField, BooleanField, IntegerField, SelectField
+from wtforms import FileField, TextAreaField
+
+# import field validators:
 from wtforms.validators import DataRequired
 
 class RunReview(Form):
     run_name = StringField('run_name', validators=[DataRequired()])
     resort_name = StringField('resort_name', validators=[DataRequired()])
 
-    
+
+class CreateResort(Form):
+    name = StringField('name', validators=[DataRequired()])
+    location = StringField('location', validators=[DataRequired()])
+    image = FileField('image')
+    run_number = IntegerField('run_number', validators=[DataRequired()])
+    summary = TextAreaField('summary', validators=[DataRequired()])
