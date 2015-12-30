@@ -1,3 +1,4 @@
+import datetime
 from drtysnow import drtysnow
 from flask import render_template, flash, redirect, url_for, request
 
@@ -8,7 +9,7 @@ from db.dbconn import connect, create_user, create_resort, create_run
 from db.dbconn import create_reviews, update, delete
 from db.dbsetup import Base, Resorts, Users, Runs, Reviews
 
-from .forms.forms import RunReview, CreateResort, CreateRun
+from .forms.forms import ReviewRun, CreateResort, CreateRun
 ################################################################################
 # Landing pages.
 ################################################################################
@@ -104,15 +105,39 @@ def new_run(resort_name):
                             resort_name=resort_name,
                             form=form)
 
-@drtysnow.route('/resorts/reviews/<string:resort_name>/<string:run_name>')
-def run_rating(resort_name, run_name):
+
+
+
+
+
+@drtysnow.route('/resort/review/<string:resort_name>/<int:run_id>/new')
+def run_review(resort_name, run_id):
     '''
     Return a form, to allow the user to enter a new review of a ski run, and then
     process the results of the form.
     '''
-    form = RunReview()
+    form = ReviewRun()
+
+    if form.validate_on_submit():
+        rating = form.rating.data
+        top_hazard = form.top_hazard.data
+        mid_hazard = form.mid_hazard.data
+        bot_hazard = form.bot_hazard.data
+        comment = str(form.comment.data)
+        time = datetime.datetime.now().time()
+
+        c = connect()
+        create_run(c, run_id, rating, 5, top_hazard, mid_hazard, bot_hazard,
+                                                            comment, time)
+        flash('Successfully added review to {0}'.format(resort_name))
+        return redirect('/resort/{0}'.format(resort_name))
 
     return render_template('create/new_review.html',form=form)
+
+
+
+
+
 
 ################################################################################
 #View Content pages.

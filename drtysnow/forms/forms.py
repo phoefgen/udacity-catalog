@@ -3,14 +3,29 @@ from flask.ext.wtf import Form
 
 # import field types:
 from wtforms import StringField, BooleanField, IntegerField, SelectField
-from wtforms import FileField, TextAreaField
+from wtforms import FileField, TextAreaField, RadioField
 
 # import field validators:
 from wtforms.validators import DataRequired
 
-class RunReview(Form):
-    run_name = StringField('run_name', validators=[DataRequired()])
-    resort_name = StringField('resort_name', validators=[DataRequired()])
+class ReviewRun(Form):
+    rating = SelectField('rating', choices=[(1,'1 - awful!'),
+                                            (2,'2'),
+                                            (3,'3'),
+                                            (4,'4'),
+                                            (5,'5'),
+                                            (6,'6'),
+                                            (7,'7'),
+                                            (8,'8'),
+                                            (9,'9'),
+                                            (10,'10 - perfect!')],
+                                    validators=[DataRequired()])
+
+    top_hazard = BooleanField('top_hazard', default=False)
+    mid_hazard = BooleanField('mid_hazard', default=False)
+    bot_hazard = BooleanField('bot_hazard', default=False)
+    comment = TextAreaField('comments', validators=[DataRequired()])
+
 
 
 class CreateResort(Form):

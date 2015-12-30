@@ -14,19 +14,30 @@
 {% endblock %}
 
 {% block content %}
-<div class="bumper"></div>
+<div class="bumper">
+</div>
   <div class="row padded">
-    <div class= "col-md-8">
+    <div class= "col-md-4">
       <h1>Create Review:</h1>
-      <form action="" method="post" name="login">
-          {{ form.hidden_tag() }}
-          <p>Run Name:  {{ form.run_name(size=80)}}<br></p>
-          <p>Resort Name: {{ form.resort_name(size=80)}}</p>
-          <p><input type="submit" value="submit"></p>
-      </form>
+    </div>
+      <div class= "col-md-8">
+        <form action="http://127.0.0.1:5000/resort/review/{{resort_name}}/{{run_id}}/new"
+              method="post">
+              {{ form.hidden_tag() }}
+            <h3>Rating: </h3>{{ form.rating()}}<br>
+            <h3>Any Hazards on the way down to watch for?</h3>
+            <p> At the top? {{ form.top_hazard()}}</p>
+            <p> Near the middle? {{ form.mid_hazard()}}</p>
+            <p> Approaching the lift? {{ form.bot_hazard()}}</p>
+            <h3> Any comments? </h3>
+            {{form.comment}}
+
+
+
+            <p><input type="submit" value="submit"></p>
+        </form>
     </div>
   </div>
-</div>
 {% endblock content %}
 {%block footer %}
 <div class ="bumper"></div>
