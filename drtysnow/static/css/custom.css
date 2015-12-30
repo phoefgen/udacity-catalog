@@ -48,3 +48,9 @@ body {
 .navbar-nav{
   font-family: 'Roboto', sans-serif;
 }
+
+/* Styling for Messages */
+
+.messages{
+  padding: 5em;
+}

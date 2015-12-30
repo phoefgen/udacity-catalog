@@ -1,0 +1,11 @@
+
+.row {
+  background-color: rgba(65, 120, 184, 0.5);
+  box-shadow: 10px 10px 10px;
+}
+
+.img-responsive {
+max-width: 100%;
+max-height: auto;
+padding: 10px;
+}

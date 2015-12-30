@@ -3,7 +3,7 @@
 import sys
 
 from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, DateTime
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, UniqueConstraint
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -20,11 +20,12 @@ class Resorts(Base):
 
     resort_name = Column(
         String(100),
-        nullable = False
+        nullable = False,
+        unique = True
         )
 
     resort_location = Column(
-        String(100),
+        String(25),
         nullable = False
         )
 

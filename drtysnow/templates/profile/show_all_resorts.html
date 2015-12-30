@@ -1,0 +1,57 @@
+<!-- This page displays a summary of all resorts in the database.  #-->
+{% extends "/all_pages/master_layout.html" %}
+
+{% block header %}
+  {% include "all_pages/header.html"%}
+  <!--Override settings imported from header with specific CSS files. -->
+ <link rel="stylesheet"
+                href="{{ url_for('static', filename='css/show_all_resorts.css') }}">
+{% endblock %}
+{% block title %}Create Run for {resort_name}:{% endblock %}
+
+{% block navbar %}
+  {% include "all_pages/navbar.html"%}
+{% endblock %}
+
+
+
+{% block content %}
+<div class = "container">
+
+  <h1> Currently Available Resorts:</h1>
+  <br>
+  {% for resort in all_resorts %}
+      <div class="row panel box-shadow">
+        <div class="col-md-4">
+          <!--<img src="{{resort['resort_image']}}"> -->
+          <img src="http://whistleroutfitters.com/maps/whistlerblackcomb_trailmap.jpg"
+                        class="img-responsive">
+        </div>
+        <div class="col-md-8">
+          <a href="/resort/{{resort['resort_name']}}">
+             <h2>Name: {{resort["resort_name"]}}</h2>
+          </a>
+          <h3> Location: {{resort["resort_location"]}}</h3>
+          <h4>Summary:</h4>
+          {{resort["resort_summary"]}}
+
+        </div>
+      </div>
+
+    {% endfor %}
+</div>
+
+
+
+
+{% endblock content %}
+
+
+
+{%block footer %}
+<div class ="bumper"></div>
+  {% include "all_pages/footer.html"%}
+{% endblock%}
+{% block scripts %}
+  {% include "all_pages/scripts.html"%}
+{% endblock %}

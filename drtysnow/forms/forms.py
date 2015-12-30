@@ -18,3 +18,9 @@ class CreateResort(Form):
     location = StringField('location', validators=[DataRequired()])
     image = FileField('image')
     summary = TextAreaField('summary', validators=[DataRequired()])
+
+class CreateRun(Form):
+    name = StringField('name', validators=[DataRequired()])
+    summary = TextAreaField('summary', validators=[DataRequired()])
+    # TODO: image = FileField('image')
+    image = StringField('name')

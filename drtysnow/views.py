@@ -4,11 +4,11 @@ from flask import render_template, flash, redirect, url_for, request
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from db.dbconn import connect, create_user, create_resort, create_runs
+from db.dbconn import connect, create_user, create_resort, create_run
 from db.dbconn import create_reviews, update, delete
 from db.dbsetup import Base, Resorts, Users, Runs, Reviews
 
-from .forms.forms import RunReview, CreateResort
+from .forms.forms import RunReview, CreateResort, CreateRun
 ################################################################################
 # Landing pages.
 ################################################################################
@@ -17,8 +17,8 @@ from .forms.forms import RunReview, CreateResort
 @drtysnow.route('/index')
 def index():
     '''
-    First page that users hit, after logging into the system. Restricted to users
-    and admins only.
+    First page that users hit, after logging into the system. Restricted to
+    users and admins only.
     '''
     return render_template('pre_login/cover.html')
 
@@ -59,27 +59,50 @@ def register_resort():
     form = CreateResort()
 
     # Check to see if form data is valid. If not, render template
-    # if so, write the form data to the database, and redirect to the profile
-    # page of the newly created resort.
-    
+    # if so, write the form data to the database, and prompt to enter
+    # another resort.
+
     if form.validate_on_submit():
         name = str(form.name.data)
         location = str(form.location.data)
         summary = str(form.summary.data)
-
         c = connect()
-        n = create_resort(c, name, location, summary)
-        return redirect('/resort/1')
+        create_resort(c, name, location, summary)
+        flash('Successfully added {0}!'.format(name))
+        return redirect('/register_resort')
 
     return render_template('create/new_resort.html',form=form)
 
-@drtysnow.route('/resorts/<string:resort_name>/new_run')
+@drtysnow.route('/resort/<string:resort_name>/new_run',
+                                                        methods=['GET', 'POST'])
 def new_run(resort_name):
     '''
     Return a form, to allow an administrator to enter a new ski run to an
     existing resort, and then process the results of the form.
     '''
-    return "Adding runs to {} is not implemented yet.".format(resort_name)
+    # Translate the URL to a resort primary key:
+    resort_key = (connect().query(Resorts)
+                  .filter_by(resort_name = resort_name).first()).id
+
+    form = CreateRun()
+
+    # Check to see if form data is valid. If not, render template
+    # if so, write the form data to the database, and prompt to enter a new
+    # run on the same resort.
+
+    if form.validate_on_submit():
+        run_name = str(form.name.data)
+        summary = str(form.summary.data)
+        image = str(form.image.data)
+
+        c = connect()
+        create_run(c, run_name, resort_key, summary)
+        flash('Successfully added {0} to {1}'.format(run_name, resort_name))
+        return redirect('/resort/{0}'.format(resort_name))
+
+    return render_template('create/new_run.html',
+                            resort_name=resort_name,
+                            form=form)
 
 @drtysnow.route('/resorts/reviews/<string:resort_name>/<string:run_name>')
 def run_rating(resort_name, run_name):
@@ -133,13 +156,16 @@ def show_user(user_id):
                                favourite_resort = resort_details['resort_name'],
                                reviews = review_list)
 
-@drtysnow.route('/resort/<int:resort_id>')
-def show_resort(resort_id):
+@drtysnow.route('/resort/<string:resort_name>')
+def show_resort(resort_name):
     '''
     Generates a profile page for the given resort, with a summary of all Runs
     '''
+    # Translate the URL to a resort primary key:
+    resort_id = (connect().query(Resorts)
+                              .filter_by(resort_name = resort_name).first()).id
 
-    # Get details abou the specified resort:
+    # Get details about the specified resort:
     resort_details = connect().query(Resorts).get(resort_id).__dict__
 
     # Get details about runs on the specified resort:
@@ -147,10 +173,12 @@ def show_resort(resort_id):
 
     return render_template('profile/show_resort.html',
                             resort_name = resort_details["resort_name"],
+                            resort_summary = resort_details["resort_summary"],
+                            resort_location =resort_details["resort_location"],
                             runs = run_details)
 
-@drtysnow.route('/run/<int:run_id>')
-def show_run(run_id):
+@drtysnow.route('/resort/<string:resort_name>/run/<int:run_id>')
+def show_run(run_id, resort_name):
     '''
     Present all details for a specified run.
     '''
@@ -170,6 +198,25 @@ def show_run(run_id):
     return render_template('profile/show_run.html',
                           run_name = connect().query(Runs).get(run_id).run_name,
                           run_summary = run_summary)
+
+@drtysnow.route('/resorts')
+def show_all_resorts():
+    '''
+    Display all registered resorts.
+    '''
+    resorts = connect().query(Resorts).all()
+    resort_brief = []
+
+    for resort in resorts:
+        r = {}
+        r["resort_name"] = resort.resort_name
+        r["resort_summary"] = resort.resort_summary
+        r["image"] = resort.resort_image
+        r["resort_location"] = resort.resort_location
+        resort_brief.append(r)
+
+    return render_template('profile/show_all_resorts.html',
+                          all_resorts = resort_brief)
 
 ################################################################################
 # Utility Views.

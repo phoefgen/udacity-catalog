@@ -20,9 +20,19 @@
   <div class = "main_profile">
     <div class="row">
       <div class="col-md-12 resortname">
-        <h1>{{resort_name}}</h1>
+        <h1>{{resort_name}} -- {{resort_location}}</h1>
       </div>
       <div class="col-md-10"></div>
+    </div>
+    <div class="row summary">
+      <div class="col-md-3"></div>
+      <div class="col-md-6">
+        <br>
+        <h4>
+          {{resort_summary}}
+        </h4>
+      </div>
+      <div class="col-md-3"></div>
     </div>
     <div class="row">
       <div class="col-md-1"></div>
@@ -59,6 +69,9 @@
             {% endfor %}
           </table>
         </div>
+      </div>
+      <div align="right" class="admin">
+        <a href="/resort/{{resort_name}}/new_run"> <h5>Add Run</h5> </a>
       </div>
     </div>
   </div>

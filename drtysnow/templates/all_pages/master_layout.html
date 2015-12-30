@@ -12,8 +12,15 @@
     <div class="site-wrapper">
       <div class="site-wrapper-inner">
             {% block navbar %}  {% endblock %}
+            <div class="messages">
+            {% for message in get_flashed_messages() %}
+              <div class="alert alert-info">
+                {{ message }}
+              </div>
+            {% endfor %}
             {% block content %} {% endblock %}
             {% block footer %}  {% endblock %}
+        </div>
       </div>
     </div>
     {% block scripts %} {% endblock%}

@@ -39,12 +39,11 @@ def create_resort(db_session, name, location, summary):
     db_session.commit()
     return
 
-def create_runs(db_session, run_name, resort_id, run_description):
+def create_run(db_session, run_name, resort_id, run_description):
     new_run = Runs(run_name = run_name,
                  resort_id = resort_id,
                  run_description = run_description)
-
-    db_session.add(new_user)
+    db_session.add(new_run)
     db_session.commit()
     return
 
