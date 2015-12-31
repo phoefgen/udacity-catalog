@@ -26,7 +26,8 @@
     <div class="col-md-3">
     </div>
       <div class= "col-md-9">
-        <form action="http://127.0.0.1:5000/register_resort/" method="post">                                  {{ form.hidden_tag()}}
+        <form action="http://127.0.0.1:5000/register_resort/" method="post">
+            {{ form.hidden_tag()}}
             <p>Name:            <br>{{ form.name(size=80)}}</p>
             <p>Location:        <br>{{ form.location(size=80)}}</p>
             <p>Description:     <br>{{ form.summary(size=500)}}</p>

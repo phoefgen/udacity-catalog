@@ -143,7 +143,6 @@ class Reviews(Base):
 
     time = Column(
         DateTime,
-        nullable = False
     )
 
     runs = relationship(Runs)

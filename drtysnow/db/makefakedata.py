@@ -27,7 +27,11 @@ def lorem(length):
 ''' Fake data to populate the database.'''
 def make_resorts(s):
     name = fakename(15)
-    new_resort = Resorts(resort_name = name)
+    location = fakename(12)
+    summary = lorem(25)
+    new_resort = Resorts(resort_name = name,
+                         resort_location=location,
+                         resort_summary=summary)
     s.add(new_resort)
     s.commit()
     return

@@ -110,7 +110,8 @@ def new_run(resort_name):
 
 
 
-@drtysnow.route('/resort/review/<string:resort_name>/<int:run_id>/new')
+@drtysnow.route('/resort/review/<string:resort_name>/<int:run_id>/new',
+                                                        methods=['GET', 'POST'])
 def run_review(resort_name, run_id):
     '''
     Return a form, to allow the user to enter a new review of a ski run, and then
@@ -119,20 +120,27 @@ def run_review(resort_name, run_id):
     form = ReviewRun()
 
     if form.validate_on_submit():
-        rating = form.rating.data
+        print "form valid"
+        rating = int(form.rating.data)
         top_hazard = form.top_hazard.data
         mid_hazard = form.mid_hazard.data
         bot_hazard = form.bot_hazard.data
-        comment = str(form.comment.data)
-        time = datetime.datetime.now().time()
+        comment = form.comment.data
+        time = str(datetime.datetime.now().time())
+        print 'parsed form'
 
         c = connect()
-        create_run(c, run_id, rating, 5, top_hazard, mid_hazard, bot_hazard,
+        n = create_reviews(c, run_id, rating, 5, top_hazard, mid_hazard, bot_hazard,
                                                             comment, time)
         flash('Successfully added review to {0}'.format(resort_name))
+        print 'created review'
         return redirect('/resort/{0}'.format(resort_name))
-
-    return render_template('create/new_review.html',form=form)
+    print "form not valid"
+    print form.errors
+    return render_template('create/new_review.html',
+                            resort_name = resort_name,
+                            run_id = run_id,
+                            form = form)
 
 
 
