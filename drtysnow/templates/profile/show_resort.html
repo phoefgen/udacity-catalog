@@ -63,7 +63,7 @@
             </tr>
             {% for run in runs %}
             <tr>
-              <TD class="c1">{{run["run_name"]}}</TD>
+              <TD class="c1"><a href='/resort/{{ resort_name }}/run/{{run["id"]}}'> {{run["run_name"]}}</TD></a>
               <TD class="c1">{{run["run_description"]}}</TD>
             </tr>
             {% endfor %}

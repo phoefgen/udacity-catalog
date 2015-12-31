@@ -20,7 +20,7 @@
   <div class = "main_profile">
     <div class="row">
       <div class="col-md-12 resortname">
-        <h1>{{run_name}}</h1>
+        <h1>{{ run_name }}</h1>
       </div>
       <div class="col-md-10"></div>
     </div>
@@ -37,7 +37,10 @@
   <div class="runs">
     <div class="row">
       <div class="col-md-12 ">
-        <h3> All Reviews for {{run_name}}</h3>
+        <h3> All Reviews for {{ run_name }}</h3>
+        <div align="right">
+          <a href="/resort/review/{{ resort_name }}/{{ run_id }}/new"> <h5>Add Review!</h5> </a>
+        </div>
     </div>
 
     <div class="row">
@@ -75,8 +78,6 @@
                <tr>
                 <td><strong>Comments:</strong> {{summary["comments"]}}</td>
               </tr>
-
-
               </tr>
             {% endfor %}
           </table>

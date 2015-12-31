@@ -70,9 +70,10 @@ def register_resort():
         c = connect()
         create_resort(c, name, location, summary)
         flash('Successfully added {0}!'.format(name))
-        return redirect('/register_resort')
+        return redirect('/resort/{0}'.format(name))
 
     return render_template('create/new_resort.html',form=form)
+
 
 @drtysnow.route('/resort/<string:resort_name>/new_run',
                                                         methods=['GET', 'POST'])
@@ -81,9 +82,10 @@ def new_run(resort_name):
     Return a form, to allow an administrator to enter a new ski run to an
     existing resort, and then process the results of the form.
     '''
-    # Translate the URL to a resort primary key:
+    # Translate the URL to a resort primary key. Resort names are guaranted
+    # unique:
     resort_key = (connect().query(Resorts)
-                  .filter_by(resort_name = resort_name).first()).id
+                               .filter_by(resort_name = resort_name).first()).id
 
     form = CreateRun()
 
@@ -104,10 +106,6 @@ def new_run(resort_name):
     return render_template('create/new_run.html',
                             resort_name=resort_name,
                             form=form)
-
-
-
-
 
 
 @drtysnow.route('/resort/review/<string:resort_name>/<int:run_id>/new',
@@ -134,8 +132,8 @@ def run_review(resort_name, run_id):
                                                             comment, time)
         flash('Successfully added review to {0}'.format(resort_name))
         print 'created review'
-        return redirect('/resort/{0}'.format(resort_name))
-    print "form not valid"
+        return redirect('/resort/{0}/run/{1}'.format(resort_name, run_id))
+    print "form not yet valid"
     print form.errors
     return render_template('create/new_review.html',
                             resort_name = resort_name,
@@ -231,7 +229,9 @@ def show_run(run_id, resort_name):
 
     return render_template('profile/show_run.html',
                           run_name = connect().query(Runs).get(run_id).run_name,
-                          run_summary = run_summary)
+                          run_summary = run_summary,
+                          run_id = run_id,
+                          resort_name = resort_name)
 
 @drtysnow.route('/resorts')
 def show_all_resorts():
@@ -251,6 +251,21 @@ def show_all_resorts():
 
     return render_template('profile/show_all_resorts.html',
                           all_resorts = resort_brief)
+
+@drtysnow.route('/find_run')
+def find_run():
+    '''
+    Start the run review process. Select a resort, then a run, then go to
+    the run review page.
+    '''
+
+    resorts = connect().query(Resorts).all()
+    names = []
+
+    for resort in resorts:
+        names.append(resort.resort_name)
+
+    return render_template('profile/select_run.html', resorts=names)
 
 ################################################################################
 # Utility Views.
