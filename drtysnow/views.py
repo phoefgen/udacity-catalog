@@ -194,9 +194,10 @@ def show_resort(resort_name):
     '''
     Generates a profile page for the given resort, with a summary of all Runs
     '''
+    print resort_name
     # Translate the URL to a resort primary key:
     resort_id = (connect().query(Resorts)
-                              .filter_by(resort_name = resort_name).first()).id
+                              .filter_by(resort_name = str(resort_name)).first()).id
 
     # Get details about the specified resort:
     resort_details = connect().query(Resorts).get(resort_id).__dict__
