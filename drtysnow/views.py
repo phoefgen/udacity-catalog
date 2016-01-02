@@ -1,15 +1,30 @@
-import datetime
+# Generic Python Classes:
+import datetime, random, string, httplib2, json, requests
+
+# Flask Classes:
 from drtysnow import drtysnow
 from flask import render_template, flash, redirect, url_for, request
+from flask import session as login_session
+from flask import make_response
 
+# DB Classes:
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+# Custom DB classes:
 from db.dbconn import connect, create_user, create_resort, create_run
 from db.dbconn import create_reviews, update, delete
 from db.dbsetup import Base, Resorts, Users, Runs, Reviews
 
+# WTForms models:
 from .forms.forms import ReviewRun, CreateResort, CreateRun
+
+# Auth Classes:
+from oauth2client.client import flow_from_clientsecrets
+from oauth2client.client import FlowExchangeError
+
+# Settings:
+CLIENT_ID= json.loads(open('drtysnow/client_secrets.json', 'r').read())['web']['client_id']
 ################################################################################
 # Landing pages.
 ################################################################################
@@ -270,6 +285,89 @@ def find_run():
 ################################################################################
 # Utility Views.
 ################################################################################
+
+@drtysnow.route('/login')
+def login():
+    #generate and store session token:
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits)
+            for x in xrange(32))
+    login_session['state'] = state
+    return render_template('/pre_login/login.html', STATE=state)
+
+@drtysnow.route('/gconnect', methods=['POST'])
+def gconnect():
+    if request.args.get('state') !=login_session['state']:
+        print 'state check failed'
+        response = make_response(json.dumps('Invalid state parameter'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    code = request.data
+    try:
+        # convert the auth code into a credential object.
+        oauth_flow = flow_from_clientsecrets('drtysnow/client_secrets.json', scope='')
+        oauth_flow.redirect_uri = 'postmessage'
+        credentials = oauth_flow.step2_exchange(code)
+    except FlowExchangeError:
+        response = make_response(json.dumps('Failed to upgrade the auth code.'),
+                                                                            401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    # Check token:
+    access_token = credentials.access_token
+    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s'
+           % access_token)
+    h = httplib2.Http()
+    result = json.loads(h.request(url, 'GET')[1])
+    # Check the result for the outcome:
+    if result.get('error') is not None:
+        response = make_response(json.dumps(result.get('error')), 500)
+        response.headers['Content-Type'] = 'application/json'
+
+    # Verify the token from google:
+    gplus_id = credentials.id_token['sub']
+    print result
+    if result['user_id'] != gplus_id:
+        response = make_response(json.dumps("Tokens ID doesnt match user ID."),
+                                                                            401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # Match token to ensure the correct app is in use
+    if result['issued_to'] != CLIENT_ID:
+        response = make_response(json.dumps("Token does not match application"),
+                                                                            401)
+        print "Token does not match application"
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # Check for exisiting login:
+    stored_credentials = login_session.get('credentials')
+    stored_gplus_id = login_session.get('gplus_id')
+    if stored_credentials is not None and gplus_id == stored_gplus_id:
+        response = make_response(json.dumps('Current user already connected.'),
+                                                                            200)
+        response_headers['Content-Type'] = 'application/json'
+
+    # Store theaccess token in the session for later use.
+    login_session['credentials'] = credentials.access_token
+    login_session['gplus_id'] = gplus_id
+
+    # Now we have a verified, and stored session, pull user data:
+    userinfo_url = 'https://www.googleapis.com/oauth2/v1/userinfo'
+    params = {'access_token': credentials.access_token, 'alt':'json'}
+    answer = requests.get(userinfo_url, params=params)
+    data = json.loads(answer.text)
+
+    # store the pulled details in the session object:
+    login_session['username'] = data['name']
+    login_session['picture'] = data['picture']
+    login_session['email'] = data['email']
+
+    # provide feedback to the user:
+    print login_session['username']
+    flash('{0}, you are now logged in.'.format(login_session['username']))
+    return redirect('/landing')
 
 @drtysnow.errorhandler(404)
 def page_not_found(e):
