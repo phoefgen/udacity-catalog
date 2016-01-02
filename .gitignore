@@ -58,3 +58,7 @@ target/
 
 
 .DS_Store
+
+
+# Auth Details:
+client_secrets.json

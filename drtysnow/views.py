@@ -61,8 +61,8 @@ def prelaunch():
 @drtysnow.route('/<int:user_id>/modify_profile')
 def register_user(user_id):
     '''
-    Return a form, to allow a non-user to enter a new resort, and then process
-    the results of the form.
+    Return a form, to allow a user to change there profile options, and then
+     process the results of the form.
     '''
     return "Modify {}'s profile page Not implemented".format(user_id)
 
@@ -72,6 +72,10 @@ def register_resort():
     Return a form, to allow an administrator to enter a new resort, and then
     process the results of the form.
     '''
+    # Restrict content to admins.
+    if need_login('admin'):
+        return ('/login')
+
     form = CreateResort()
 
     # Check to see if form data is valid. If not, render template
@@ -97,6 +101,10 @@ def new_run(resort_name):
     Return a form, to allow an administrator to enter a new ski run to an
     existing resort, and then process the results of the form.
     '''
+    # Restrict content to admins.
+    if need_login('admin'):
+        return ('/login')
+
     # Translate the URL to a resort primary key. Resort names are guaranted
     # unique:
     resort_key = (connect().query(Resorts)
@@ -127,9 +135,13 @@ def new_run(resort_name):
                                                         methods=['GET', 'POST'])
 def run_review(resort_name, run_id):
     '''
-    Return a form, to allow the user to enter a new review of a ski run, and then
+    Return a form, to allow a user to enter a new review of a ski run, and then
     process the results of the form.
     '''
+    # Restrict content to registered users.
+    if need_login('user'):
+        return redirect('login')
+
     form = ReviewRun()
 
     if form.validate_on_submit():
@@ -170,6 +182,10 @@ def show_user(user_id):
     Takes an integer from the URL, and populates a profile page for the
     user with the same ID in the users table.
     '''
+    # restrict content to registered users.
+    if need_login('user'):
+        return redirect('login')
+
     # Get basic user details.
     profile_result = connect().query(Users).get(user_id)
     profile_details = profile_result.__dict__
@@ -207,10 +223,14 @@ def show_resort(resort_name):
     '''
     Generates a profile page for the given resort, with a summary of all Runs
     '''
+    # Restrict content to registered users.
+    if need_login('user'):
+        user = False
+
     print resort_name
     # Translate the URL to a resort primary key:
     resort_id = (connect().query(Resorts)
-                              .filter_by(resort_name = str(resort_name)).first()).id
+                          .filter_by(resort_name = str(resort_name)).first()).id
 
     # Get details about the specified resort:
     resort_details = connect().query(Resorts).get(resort_id).__dict__
@@ -288,7 +308,9 @@ def find_run():
 
 @drtysnow.route('/login')
 def login():
-    #generate and store session token:
+    '''
+    generate and store session token:
+    '''
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
             for x in xrange(32))
     login_session['state'] = state
@@ -296,6 +318,13 @@ def login():
 
 @drtysnow.route('/gconnect', methods=['POST'])
 def gconnect():
+    '''
+    Do most of the heavy lifting for oauth with google:
+    1) Check for session spoofing
+    2) Request and then verify the data from the google api endpoint.
+    3) Pull basic user data from google.
+    4) handle and log errors.
+    '''
     if request.args.get('state') !=login_session['state']:
         print 'state check failed'
         response = make_response(json.dumps('Invalid state parameter'), 401)
@@ -347,7 +376,7 @@ def gconnect():
     if stored_credentials is not None and gplus_id == stored_gplus_id:
         response = make_response(json.dumps('Current user already connected.'),
                                                                             200)
-        response_headers['Content-Type'] = 'application/json'
+        response.headers['Content-Type'] = 'application/json'
 
     # Store theaccess token in the session for later use.
     login_session['credentials'] = credentials.access_token
@@ -363,11 +392,48 @@ def gconnect():
     login_session['username'] = data['name']
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
+    login_session['access_token'] = access_token
 
     # provide feedback to the user:
-    print login_session['username']
     flash('{0}, you are now logged in.'.format(login_session['username']))
     return redirect('/landing')
+
+@drtysnow.route('/gdisconnect')
+@drtysnow.route('/logout')
+def gdisconnect():
+    '''
+    Tear down the connection to google, and destroy all the session data. Return
+    the user to a "pre-signin" state.
+    '''
+
+    access_token = login_session['access_token']
+    print 'In gdisconnect access token is %s', access_token
+    print 'User name is: '
+    print login_session['username']
+    if access_token is None:
+ 	print 'Access Token is None'
+    	response = make_response(json.dumps('Current user not connected.'), 401)
+    	response.headers['Content-Type'] = 'application/json'
+    	return response
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
+    h = httplib2.Http()
+    result = h.request(url, 'GET')[0]
+    print 'result is '
+    print result
+    if result['status'] == '200':
+	del login_session['access_token']
+    	del login_session['gplus_id']
+    	del login_session['username']
+    	del login_session['email']
+    	del login_session['picture']
+    	response = make_response(json.dumps('Successfully disconnected.'), 200)
+    	response.headers['Content-Type'] = 'application/json'
+    	return response
+    else:
+
+    	response = make_response(json.dumps('Failed to revoke token for given user.', 400))
+    	response.headers['Content-Type'] = 'application/json'
+    	return response
 
 @drtysnow.errorhandler(404)
 def page_not_found(e):
@@ -376,3 +442,22 @@ def page_not_found(e):
     '''
 
     return render_template('error/404.html'), 404
+
+
+################################################################################
+# Helper Functions:
+################################################################################
+
+
+def need_login(user_type):
+    '''
+    Verify user status, and differentiate between a user, a visitor, and an admin.
+    '''
+    # Check to see if this is a get request. Client will need to make a valid
+    # GET request before they can make a POST request. The CSRF field drops all
+    # non-authenticated form requests:
+    if request.method == 'GET':
+        if 'username' not in login_session:
+            flash('This content only available for registered {type}s. \
+                                          Please login.'.format(type=user_type))
+            return True
