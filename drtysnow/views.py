@@ -74,7 +74,7 @@ def register_resort():
     '''
     # Restrict content to admins.
     if need_login('admin'):
-        return ('/login')
+        return redirect('/login')
 
     form = CreateResort()
 
@@ -103,7 +103,7 @@ def new_run(resort_name):
     '''
     # Restrict content to admins.
     if need_login('admin'):
-        return ('/login')
+        return redirect('login')
 
     # Translate the URL to a resort primary key. Resort names are guaranted
     # unique:
@@ -224,7 +224,7 @@ def show_resort(resort_name):
     Generates a profile page for the given resort, with a summary of all Runs
     '''
     # Restrict content to registered users.
-    if need_login('user'):
+    if need_login('none'):
         user = False
 
     print resort_name
@@ -456,8 +456,9 @@ def need_login(user_type):
     # Check to see if this is a get request. Client will need to make a valid
     # GET request before they can make a POST request. The CSRF field drops all
     # non-authenticated form requests:
-    if request.method == 'GET':
+    if request.method == 'GET' and (user_type == 'admin' or user_type == 'user'):
         if 'username' not in login_session:
             flash('This content only available for registered {type}s. \
                                           Please login.'.format(type=user_type))
             return True
+    return False

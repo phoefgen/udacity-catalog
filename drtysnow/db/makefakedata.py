@@ -71,13 +71,15 @@ def make_users(s, count):
     fullname = fullname.split()
     email = fullname[0] + '.' + fullname[1] + '@fakemail.com'
     favourite_resort_id = random.randrange(1,9)
+    user_id = count + random.randrange(999,99999)
     administrator = False;
 
     new_user = Users(first_name = fullname[0],
                      last_name = fullname[1],
                      email_address = email,
                      favourite_resort_id = favourite_resort_id,
-                     administrator = administrator
+                     administrator = administrator,
+                     user_id= user_id
                      )
     s.add(new_user)
     s.commit()

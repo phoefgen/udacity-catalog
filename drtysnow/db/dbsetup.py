@@ -50,6 +50,11 @@ class Users(Base):
         primary_key = True
     )
 
+    user_id = Column(
+        Integer,
+        nullable = False
+    )
+
     first_name = Column(
         String(100),
         nullable = False
@@ -122,7 +127,7 @@ class Reviews(Base):
 
     user_id = Column(
         Integer,
-        ForeignKey('users.id')
+        ForeignKey('users.user_id')
     )
 
     top_hazard = Column(
