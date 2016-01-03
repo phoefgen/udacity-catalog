@@ -167,9 +167,29 @@ def run_review(resort_name, run_id):
                             run_id = run_id,
                             form = form)
 
+@drtysnow.route('/new_user', methods=['GET', 'POST'])
+def new_user():
+    '''
+    Return a user signup form, and process the results into the database.
+    '''
 
 
+    form = CreateResort()
 
+    # Check to see if form data is valid. If not, render template
+    # if so, write the form data to the database, and prompt to enter
+    # another resort.
+
+    if form.validate_on_submit():
+        name = str(form.name.data)
+        location = str(form.location.data)
+        summary = str(form.summary.data)
+        c = connect()
+        create_resort(c, name, location, summary)
+        flash('Successfully added {0}!'.format(name))
+        return redirect('/resort/{0}'.format(name))
+
+    return render_template('create/new_resort.html',form=form)
 
 
 ################################################################################
@@ -370,7 +390,7 @@ def gconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
-    # Check for exisiting login:
+    # Check for exisiting login session:
     stored_credentials = login_session.get('credentials')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_credentials is not None and gplus_id == stored_gplus_id:
@@ -378,7 +398,7 @@ def gconnect():
                                                                             200)
         response.headers['Content-Type'] = 'application/json'
 
-    # Store theaccess token in the session for later use.
+    # Store the access token in the session for later use.
     login_session['credentials'] = credentials.access_token
     login_session['gplus_id'] = gplus_id
 
@@ -390,9 +410,14 @@ def gconnect():
 
     # store the pulled details in the session object:
     login_session['username'] = data['name']
+    login_session['last_name'] = data['family_name']
+    login_session['first_name'] = data['given_name']
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
     login_session['access_token'] = access_token
+
+    # check to see if this is a new user, if it is, create a new user account:
+    user_check()
 
     # provide feedback to the user:
     flash('{0}, you are now logged in.'.format(login_session['username']))
@@ -424,6 +449,8 @@ def gdisconnect():
 	del login_session['access_token']
     	del login_session['gplus_id']
     	del login_session['username']
+    	del login_session['last_name']
+        del login_session['first_name']
     	del login_session['email']
     	del login_session['picture']
     	response = make_response(json.dumps('Successfully disconnected.'), 200)
@@ -451,7 +478,8 @@ def page_not_found(e):
 
 def need_login(user_type):
     '''
-    Verify user status, and differentiate between a user, a visitor, and an admin.
+    Verify user status, and differentiate between a user, a visitor, and an
+    admin.
     '''
     # Check to see if this is a get request. Client will need to make a valid
     # GET request before they can make a POST request. The CSRF field drops all
@@ -462,3 +490,35 @@ def need_login(user_type):
                                           Please login.'.format(type=user_type))
             return True
     return False
+
+def user_check():
+    '''
+    After a user has been authenticated with an oauth provider, check to see if
+    they are known to the site, prompt for new user account creation if not.
+    '''
+
+    # check to see if a user exists in the database. Use email as a key, so that
+    # a user account is persistent across oauth providers.
+    if (connect().query(Users).filter_by(
+                                 email_address = login_session['email']).first()):
+        print 'User already exists'
+        return True
+
+    # This is a new user, create profile entry in database. Process user data.
+    # there are other user options, these can be modified from the modify form
+    # after user creation.
+    first_name = login_session['first_name']
+    last_name = login_session['last_name']
+    email_address = login_session['email']
+    administrator = False # All users are non-admins, unless explicity added.
+    user_id = login_session['gplus_id']
+
+    # create new user in local db with collected data:
+    create_user(connect(), first_name,
+                            last_name,
+                            0,
+                            administrator,
+                            email_address,
+                            user_id)
+
+    print "created new user: {0}".format(login_session['username'])
