@@ -79,6 +79,10 @@ class Users(Base):
         nullable = False
     )
 
+    user_picture =  Column(
+        String(500),
+    )
+
     resorts = relationship(Resorts)
 
 class Runs(Base):
@@ -127,7 +131,7 @@ class Reviews(Base):
 
     user_id = Column(
         Integer,
-        ForeignKey('users.user_id')
+        ForeignKey('users.id')
     )
 
     top_hazard = Column(

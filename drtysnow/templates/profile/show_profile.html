@@ -22,8 +22,12 @@
     <div class="row boxed well">
       <div class="col-md-2">
           <img class="img-responsive headshot"
+          {% if picture is none %}
                 src="{{ url_for('static', filename='images/ski_headshot.jpg')}}"
                                                             alt="user headshot">
+          {% else %}
+            src="{{ picture }}" alt="user headshot">
+          {% endif %}
       </div>
       <div class="col-md-10">
         <h1>{{fname}} {{lname}}</h1>

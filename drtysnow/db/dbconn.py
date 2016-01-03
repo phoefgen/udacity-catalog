@@ -20,13 +20,15 @@ def connect():
     s = DBSession()
     return s
 
-def create_user(db_session, fname, lname, favorite_resort_id, admin, email, user_id):
+def create_user(db_session, fname, lname, favorite_resort_id,
+                                                admin, email, user_id, picture):
     new_user = Users(first_name = fname,
                      last_name = lname,
                      favourite_resort_id = favorite_resort_id,
                      administrator = admin,
                      email_address = email,
-                     user_id = user_id)
+                     user_id = user_id,
+                     user_picture = picture)
     db_session.add(new_user)
     db_session.commit()
     return

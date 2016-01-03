@@ -34,4 +34,4 @@ class CreateRun(Form):
     name = StringField('name', validators=[DataRequired()])
     summary = TextAreaField('summary', validators=[DataRequired()])
     # TODO: image = FileField('image')
-    image = StringField('name')
+    image = StringField('name')    

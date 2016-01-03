@@ -155,7 +155,7 @@ def run_review(resort_name, run_id):
         print 'parsed form'
 
         c = connect()
-        n = create_reviews(c, run_id, rating, 5, top_hazard, mid_hazard, bot_hazard,
+        n = create_reviews(c, run_id, rating, login_session['id'], top_hazard, mid_hazard, bot_hazard,
                                                             comment, time)
         flash('Successfully added review to {0}'.format(resort_name))
         print 'created review'
@@ -166,31 +166,6 @@ def run_review(resort_name, run_id):
                             resort_name = resort_name,
                             run_id = run_id,
                             form = form)
-
-@drtysnow.route('/new_user', methods=['GET', 'POST'])
-def new_user():
-    '''
-    Return a user signup form, and process the results into the database.
-    '''
-
-
-    form = CreateResort()
-
-    # Check to see if form data is valid. If not, render template
-    # if so, write the form data to the database, and prompt to enter
-    # another resort.
-
-    if form.validate_on_submit():
-        name = str(form.name.data)
-        location = str(form.location.data)
-        summary = str(form.summary.data)
-        c = connect()
-        create_resort(c, name, location, summary)
-        flash('Successfully added {0}!'.format(name))
-        return redirect('/resort/{0}'.format(name))
-
-    return render_template('create/new_resort.html',form=form)
-
 
 ################################################################################
 #View Content pages.
@@ -206,7 +181,7 @@ def show_user(user_id):
     if need_login('user'):
         return redirect('login')
 
-    # Get basic user details.
+    # Get user details.
     profile_result = connect().query(Users).get(user_id)
     profile_details = profile_result.__dict__
 
@@ -236,7 +211,8 @@ def show_user(user_id):
                                lname = profile_details['last_name'],
                                email = profile_details['email_address'],
                                favourite_resort = resort_details['resort_name'],
-                               reviews = review_list)
+                               reviews = review_list,
+                               picture = profile_details['user_picture'])
 
 @drtysnow.route('/resort/<string:resort_name>')
 def show_resort(resort_name):
@@ -455,12 +431,16 @@ def gdisconnect():
     	del login_session['picture']
     	response = make_response(json.dumps('Successfully disconnected.'), 200)
     	response.headers['Content-Type'] = 'application/json'
-    	return response
+        print response
+        flash('Logged Out')
+        return redirect('/landing')
     else:
 
     	response = make_response(json.dumps('Failed to revoke token for given user.', 400))
     	response.headers['Content-Type'] = 'application/json'
-    	return response
+        print response
+    	flash('Failed to logout')
+        return redirect('/landing')
 
 
 @drtysnow.route('/fbconnect', methods = ['POST'])
@@ -567,6 +547,11 @@ def user_check():
     if (connect().query(Users).filter_by(
                                  email_address = login_session['email']).first()):
         print 'User already exists'
+
+        # Add custom data from the local DB about this user session:
+        login_session['id'] = connect().query(Users).filter_by(
+                              email_address = login_session['email']).first().id
+
         return True
 
     # This is a new user, create profile entry in database. Process user data.
@@ -577,6 +562,7 @@ def user_check():
     email_address = login_session['email']
     administrator = False # All users are non-admins, unless explicity added.
     user_id = login_session['gplus_id']
+    picture = login_session['picture']
 
     # create new user in local db with collected data:
     create_user(connect(), first_name,
@@ -584,6 +570,7 @@ def user_check():
                             0,
                             administrator,
                             email_address,
-                            user_id)
+                            user_id,
+                            picture)
 
     print "created new user: {0}".format(login_session['username'])
