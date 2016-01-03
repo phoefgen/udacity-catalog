@@ -323,7 +323,7 @@ def find_run():
     return render_template('profile/select_run.html', resorts=names)
 
 ################################################################################
-# Utility Views.
+# Login Handling.
 ################################################################################
 
 @drtysnow.route('/login')
@@ -462,6 +462,71 @@ def gdisconnect():
     	response.headers['Content-Type'] = 'application/json'
     	return response
 
+
+@drtysnow.route('/fbconnect', methods = ['POST'])
+def fbconnect():
+    # check for forgeries:
+    if request.args.get('state') != login_session['state']:
+        response = make_response(json.dumps('Invalid state paramater'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return resonse
+    access_token = request.data
+    print "access token: " + access_token
+
+    # upgrade token from single use for auth flow, to stateful session token:
+    # Construct URL for this session:
+    app_id = json.loads(
+                    open('drtysnow/fb_client_secrets.json', 'r').read())['web']['app_id']
+    app_secret = json.loads(
+                open('drtysnow/fb_client_secrets.json', 'r').read())['web']['app_secret']
+    url = 'https://graph.facebook.com/oauth/access_token?\
+                                            grant_type=fb_exchange_token\
+                                            &client_id=%s\
+                                            &client_secret=%s\
+                                            &fb_exchange_token=%s\
+                                            ' % (app_id,app_secret,access_token)
+    # Pull session specific data:
+    h = httplib2.Http()
+    result = h.request(url, 'GET')[1]
+
+    # Use token to get user data:
+    userinfo_url = "https://graph.facebookcom/v2.2/me"
+    # remove expire tag from token:
+    token = result.split("&")[0]
+
+    # Pull user data, store in login session:
+    url = 'https://graph.facebook.com/v2.4/me?%s&fields=name,id,email' % token
+    h = httplib2.Http()
+    result = h.request(url, 'GET')[1]
+    data = json.loads(result)
+    login_session['username'] = data['name']
+    login_session['first_name'] = login_session['username'].split()[0]
+    login_session['last_name'] = login_session['username'].split()[1]
+    login_session['email'] = data['email']
+    login_session['user_id'] = data['id']
+
+    #Get User Pic URL:
+    url = 'https://graph.facebook.com/v2.2/me/picture?%s\
+                                                      &redirect=0\
+                                                      &height=200\
+                                                      &width=200' % token
+    h = httplib2.http()
+    result = h.request(url, 'GET')[1]
+    data = json.loads(result)
+    login_session['picture'] = data['data']['url']
+
+    # check to see if this is a new user, if it is, create a new user account:
+    user_check()
+
+    # provide feedback to the user:
+    flash('{0}, you are now logged in.'.format(login_session['username']))
+    return redirect('/landing')
+
+
+################################################################################
+# Error Handling.
+################################################################################
+
 @drtysnow.errorhandler(404)
 def page_not_found(e):
     '''
@@ -494,7 +559,7 @@ def need_login(user_type):
 def user_check():
     '''
     After a user has been authenticated with an oauth provider, check to see if
-    they are known to the site, prompt for new user account creation if not.
+    they are known to the site, create new user account if not.
     '''
 
     # check to see if a user exists in the database. Use email as a key, so that
