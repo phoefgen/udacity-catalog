@@ -38,3 +38,4 @@ class CreateRun(Form):
 
 class UpdateProfile(Form):
     favorite_resort = SelectField('favorite')
+    is_admin = BooleanField('is_admin', default=False)

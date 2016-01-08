@@ -5,6 +5,7 @@
 '''
 
 from sqlalchemy import create_engine
+from sqlalchemy import update
 from sqlalchemy.orm import sessionmaker
 
 from dbsetup import Base, Resorts, Users, Runs, Reviews
@@ -65,13 +66,14 @@ def create_reviews(db_session, run_id, rating, user_id, top_hazard, mid_hazard,
 
 
 # Generic Delete Delete and update methods for all tables:
-def update(db_session, table_name, row_id, field, new_content):
+def update_entry(db_session, table_name, row_id, field, new_content):
     ''' Take the name of any table, and the pre-determined primary key, use
         the reference to update a single value in the row.'''
-
-    change = db_session.query(table_name).filter_by(id=row_id).one()
-    change.field = new_content
-    db_session.add(update)
+    primary_key = row_id
+    change = db_session.query(Users).filter_by(id = primary_key).first()
+    print "old fave: " + str(change.field)
+    change.favourite_resort_id = new_content
+    print "new fave: "+ str(change.favourite_resort_id)
     db_session.commit()
     return
 
@@ -79,7 +81,7 @@ def delete(db_session, table, id):
     ''' Take the name of any table, and the pre-determined primary key, use
         the reference to delete a single row.'''
 
-    delete_me = db_session.query(table_name).filter_by(id=row_id).one()
+    delete_me = db_session.query(table_name).filter_by(id=row_id).first()
     db_session.delete(delete_me)
     db_session.commit()
     return

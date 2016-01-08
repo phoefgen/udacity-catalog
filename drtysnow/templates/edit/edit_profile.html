@@ -29,10 +29,13 @@
         <div class= "col-md-9">
           <form action="http://127.0.0.1:5000/edit/profile/{{ session.id }}"
                                                                   method="post">
+                                                 {{ form.hidden_tag() }}
               <p>Favorite Resort:            <br>{{ form.favorite_resort }}</p>
+              <p>Am I an admin?:            <br>{{ form.is_admin }}</p>
               <br>
               <input type="submit" value="submit">
           </form>
+        </div>
 
 
 

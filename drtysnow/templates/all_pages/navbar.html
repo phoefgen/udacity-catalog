@@ -27,12 +27,11 @@
                              aria-expanded="false">Settings <span class="caret">
                                                                    </span></a>
                     <ul class="dropdown-menu">
-                        <li><a href="#">Edit My Profile</a></li>
+                        <li><a href="/edit/profile/{{ session.id }}">Edit My Profile</a></li>
                         <li><a href="/logout">Logout</a></li>
                         {% if session.admin %}
                           <li class="divider"></li>
                           <li><a href="/register_resort">Register Resort</a></li>
-                          <li><a href="#">Register Run</a></li>
                         {% endif %}
                     </ul>
                     {% endif %}

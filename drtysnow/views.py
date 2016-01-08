@@ -13,7 +13,7 @@ from sqlalchemy.orm import sessionmaker
 
 # Custom DB classes:
 from db.dbconn import connect, create_user, create_resort, create_run
-from db.dbconn import create_reviews, update, delete
+from db.dbconn import create_reviews, update_entry, delete
 from db.dbsetup import Base, Resorts, Users, Runs, Reviews
 
 # WTForms models:
@@ -178,18 +178,20 @@ def edit_profile(user_id):
     # to login, make sure that only the user can edit the profile:
     if 'id' in login_session:
         if (login_session['id'] == user_id) or (login_session['admin']):
+            # handle a valid form submission:
+            form = UpdateProfile()
 
             # Generate a form with the list of resorts:
 
-            # pull list of names from the DB:
+            # pull list of resort names from the DB:
             resort_tuples = connect().query(Resorts.resort_name).all()
             # strip out the tuples, convert the unicode to strings:
             resort_unicode = [','.join(item) for item in resort_tuples]
             resort_list = []
             for i in resort_unicode:
                 resort_list.append(str(i))
-            print resort_list
-            # rebuild a list of tuples of strings for WTForms to consume:
+
+            # rebuild the resort list into a list of tuplesfor WTForms to consume:
             resort_choices = []
             for resort in resort_list:
                 choice = (resort, resort)
@@ -198,14 +200,26 @@ def edit_profile(user_id):
             form = UpdateProfile()
             form.favorite_resort.choices = resort_choices
 
+            # if this is a valid POST request, process the contents (referencing the
+            # valid list of choices created above). Convert the data to match The
+            # db, and then commit the changes:
+            if form.validate_on_submit():
+                favorite_resort = form.favorite_resort.data
+                fav_id = int(connect().query(Resorts.id).filter_by(
+                                      resort_name = favorite_resort).first()[0])
+                conn = connect()
+                change = conn.query(Users).filter_by(id = login_session['id']).first()
+                change.favourite_resort_id = fav_id
+                change.administrator = form.is_admin.data
+                conn.commit()
+
+                return redirect('/profile/{0}'.format(login_session['id']))
+
             return render_template('/edit/edit_profile.html', form=form)
         else:
             return reunder_template('/error/access_denied.html')
     else:
         return redirect('/login')
-
-
-
 
 
 ################################################################################
@@ -470,6 +484,7 @@ def gdisconnect():
     	del login_session['email']
     	del login_session['picture']
         del login_session['id']
+        del login_session['admin']
     	response = make_response(json.dumps('Successfully disconnected.'), 200)
     	response.headers['Content-Type'] = 'application/json'
         print response

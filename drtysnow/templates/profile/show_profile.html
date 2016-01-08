@@ -44,6 +44,15 @@
        		        <td><strong>favourite resort:</strong> </td>
                   <td>{{favourite_resort}}</td>
                 </tr>
+                <tr>
+                  <td><strong> Administrator:</td>
+                    {% if session.admin %}
+                      <td> Yes. </td>
+                    {% else %}
+                      <td> No. </td>
+                    {% endif %}
+
+                </tr>
     	        </table>
             </div>
           </div>
