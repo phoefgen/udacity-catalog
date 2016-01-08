@@ -1,4 +1,4 @@
-<!-- This page handles 404 errors gracefully #-->
+<!-- This page throws an access level error #-->
 {% extends "/all_pages/master_layout.html" %}
 
 {% block header %}
@@ -7,7 +7,7 @@
  <link rel="stylesheet"
                 href="{{ url_for('static', filename='css/show_run.css') }}">
 {% endblock %}
-{% block title %}404 Page not found{% endblock %}
+{% block title %}Access Denied.{% endblock %}
 
 {% block navbar %}
   {% include "all_pages/navbar.html"%}
@@ -17,7 +17,7 @@
 <div class ="bumper"></div>
 
 <div class="container">
- <h1>The Page was not found on this site. (404)</h1>
+ <h1>Access Denied: Your account does not grant you access to this page.</h1>
 </div>
 
 {% endblock content %}

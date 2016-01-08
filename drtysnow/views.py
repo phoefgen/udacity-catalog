@@ -17,7 +17,7 @@ from db.dbconn import create_reviews, update, delete
 from db.dbsetup import Base, Resorts, Users, Runs, Reviews
 
 # WTForms models:
-from .forms.forms import ReviewRun, CreateResort, CreateRun
+from .forms.forms import ReviewRun, CreateResort, CreateRun, UpdateProfile
 
 # Auth Classes:
 from oauth2client.client import flow_from_clientsecrets
@@ -166,6 +166,47 @@ def run_review(resort_name, run_id):
                             resort_name = resort_name,
                             run_id = run_id,
                             form = form)
+
+################################################################################
+# Edit Pages.
+################################################################################
+
+@drtysnow.route('/edit/profile/<int:user_id>', methods=['GET','POST'])
+def edit_profile(user_id):
+
+    # only allow admins and the user to edit profiles. Prompt non-authed users
+    # to login, make sure that only the user can edit the profile:
+    if 'id' in login_session:
+        if (login_session['id'] == user_id) or (login_session['admin']):
+
+            # Generate a form with the list of resorts:
+
+            # pull list of names from the DB:
+            resort_tuples = connect().query(Resorts.resort_name).all()
+            # strip out the tuples, convert the unicode to strings:
+            resort_unicode = [','.join(item) for item in resort_tuples]
+            resort_list = []
+            for i in resort_unicode:
+                resort_list.append(str(i))
+            print resort_list
+            # rebuild a list of tuples of strings for WTForms to consume:
+            resort_choices = []
+            for resort in resort_list:
+                choice = (resort, resort)
+                resort_choices.append(choice)
+
+            form = UpdateProfile()
+            form.favorite_resort.choices = resort_choices
+
+            return render_template('/edit/edit_profile.html', form=form)
+        else:
+            return reunder_template('/error/access_denied.html')
+    else:
+        return redirect('/login')
+
+
+
+
 
 ################################################################################
 #View Content pages.
@@ -409,8 +450,7 @@ def gdisconnect():
 
     access_token = login_session['access_token']
     print 'In gdisconnect access token is %s', access_token
-    print 'User name is: '
-    print login_session['username']
+    print 'User name is: ' + str(login_session['username'])
     if access_token is None:
  	print 'Access Token is None'
     	response = make_response(json.dumps('Current user not connected.'), 401)
@@ -422,13 +462,14 @@ def gdisconnect():
     print 'result is '
     print result
     if result['status'] == '200':
-	del login_session['access_token']
+        del login_session['access_token']
     	del login_session['gplus_id']
     	del login_session['username']
     	del login_session['last_name']
         del login_session['first_name']
     	del login_session['email']
     	del login_session['picture']
+        del login_session['id']
     	response = make_response(json.dumps('Successfully disconnected.'), 200)
     	response.headers['Content-Type'] = 'application/json'
         print response
@@ -551,6 +592,8 @@ def user_check():
         # Add custom data from the local DB about this user session:
         login_session['id'] = connect().query(Users).filter_by(
                               email_address = login_session['email']).first().id
+        login_session['admin'] = connect().query(Users).filter_by(
+                             email_address = login_session['email']).first().administrator
 
         return True
 
@@ -574,3 +617,13 @@ def user_check():
                             picture)
 
     print "created new user: {0}".format(login_session['username'])
+
+def list_resorts():
+    '''
+    Query the database for a list of all current resorts. Return a list that is
+    formatted for consumption by WTForms
+    '''
+    resorts = connect().query(Resorts).all()
+    names = []
+    for resort in resorts:
+        names.append('("{0}"),("{0}")'.format(resort.resort_name))

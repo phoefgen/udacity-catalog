@@ -49,6 +49,11 @@
       <div class="col-md-12 ">
         <h3> Run Summary for {{resort_name}}</h3>
     </div>
+    {% if session.admin %}
+    <div align="right" class="admin">
+      <a href="/resort/{{resort_name}}/new_run"> <h5>Add Run</h5> </a>
+    </div>
+    {% endif %}
 
     <div class="row">
       <div class="col-md-12  well">
@@ -69,9 +74,6 @@
             {% endfor %}
           </table>
         </div>
-      </div>
-      <div align="right" class="admin">
-        <a href="/resort/{{resort_name}}/new_run"> <h5>Add Run</h5> </a>
       </div>
     </div>
   </div>
