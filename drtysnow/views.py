@@ -267,6 +267,71 @@ def edit_run(run_id):
     else: # Force login before considering user:
         return redirect('/login')
 
+@drtysnow.route('/edit/resort/<int:resort_id>', methods=['GET','POST'])
+def edit_resort(resort_id):
+    # only allow admins  edit resorts. Prompt non-authed users
+    # to login, make sure that only the user can edit the profile:
+    if 'id' in login_session:
+        if (login_session['admin']):
+            form = CreateResort()
+
+            # handle a valid form submission:
+            # if this is a valid POST request, process the contents:
+            if form.validate_on_submit():
+                # Grab data from form:
+                new_name = form.name.data
+                new_summary = form.summary.data
+                new_location = form.location.data
+
+                # Push it into the db:
+                conn = connect()
+                change = conn.query(Resorts).filter_by(id = resort_id).first()
+
+                change.resort_name = new_name
+                change.resort_summary = new_summary
+                change.resort_location = new_location
+
+                # get the url, either from the db if it hasnt been changed, or
+                # from the form if it has been changed:
+                redirect_name = change.resort_name
+
+                # check to see if a new image was uploaded:
+                if form.image.data:
+                    # Save the image to the local filesystem, set path for The
+                    # db commit:
+                    filename = redirect_name.replace(' ', '_')
+                    filename = filename + '_resort_pic.jpg'
+                    picture_path = os.path.join(drtysnow.config['UPLOAD_FOLDER'], filename)
+                    form.image.data.save(picture_path)
+
+                    change.resort_image = picture_path
+                conn.commit()
+                # push the changes, then show the new resort profile:
+                return redirect('/resort/{0}'.format(redirect_name))
+
+
+
+                '''
+
+                conn.commit()
+                # push the changes, then show the new run profile:
+                return redirect('/resort/edited/run/{0}'.format(run_id))
+                '''
+            # if this is not a valid POST, return a pre-populated field:
+            resort_name = connect().query(Resorts).get(resort_id).resort_name
+            resort_location = connect().query(Resorts).get(resort_id).resort_location
+            resort_summary = connect().query(Resorts).get(resort_id).resort_summary
+
+            form.name.data = resort_name
+            form.summary.data = resort_summary
+            form.location.data = resort_location
+            return render_template('/edit/edit_resort.html', form=form,
+                                                          resort_id = resort_id)
+
+        else: # Block non-admins from editing:
+            return render_template('/error/access_denied.html')
+    else: # Force login before considering user:
+        return redirect('/login')
 
 ################################################################################
 #View Content pages.
@@ -341,7 +406,8 @@ def show_resort(resort_name):
                             resort_location =resort_details["resort_location"],
                             runs = run_details,
                             resort_pic = str(resort_details["resort_name"]
-                                               ).replace(' ', '_') + '_resort_pic.jpg')
+                                        ).replace(' ', '_') + '_resort_pic.jpg',
+                            resort_id = resort_id)
 
 @drtysnow.route('/resort/<string:resort_name>/run/<int:run_id>')
 def show_run(run_id, resort_name):
@@ -381,7 +447,7 @@ def show_all_resorts():
         r = {}
         r["resort_name"] = resort.resort_name
         r["resort_summary"] = resort.resort_summary
-        r["image"] = resort.resort_image
+        r["image"] = str(resort.resort_name.replace(' ', '_')) + '_resort_pic.jpg'
         r["resort_location"] = resort.resort_location
         resort_brief.append(r)
 
