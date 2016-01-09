@@ -34,10 +34,11 @@ def create_user(db_session, fname, lname, favorite_resort_id,
     db_session.commit()
     return
 
-def create_resort(db_session, name, location, summary):
+def create_resort(db_session, name, location, summary, picture):
     new_resort = Resorts(resort_name=name,
                          resort_location=location,
-                         resort_summary=summary)
+                         resort_summary=summary,
+                         resort_image = picture)
 
     db_session.add(new_resort)
     db_session.commit()
@@ -61,19 +62,6 @@ def create_reviews(db_session, run_id, rating, user_id, top_hazard, mid_hazard,
                          bot_hazard = bot_hazard,
                          comments = comments)
     db_session.add(new_review)
-    db_session.commit()
-    return
-
-
-# Generic Delete Delete and update methods for all tables:
-def update_entry(db_session, table_name, row_id, field, new_content):
-    ''' Take the name of any table, and the pre-determined primary key, use
-        the reference to update a single value in the row.'''
-    primary_key = row_id
-    change = db_session.query(Users).filter_by(id = primary_key).first()
-    print "old fave: " + str(change.field)
-    change.favourite_resort_id = new_content
-    print "new fave: "+ str(change.favourite_resort_id)
     db_session.commit()
     return
 

@@ -1,11 +1,11 @@
 # Generic Python Classes:
-import datetime, random, string, httplib2, json, requests
+import datetime, random, string, httplib2, json, requests, os
 
 # Flask Classes:
 from drtysnow import drtysnow
 from flask import render_template, flash, redirect, url_for, request
 from flask import session as login_session
-from flask import make_response
+from flask import make_response, send_from_directory
 
 # DB Classes:
 from sqlalchemy import create_engine
@@ -13,7 +13,7 @@ from sqlalchemy.orm import sessionmaker
 
 # Custom DB classes:
 from db.dbconn import connect, create_user, create_resort, create_run
-from db.dbconn import create_reviews, update_entry, delete
+from db.dbconn import create_reviews, delete
 from db.dbsetup import Base, Resorts, Users, Runs, Reviews
 
 # WTForms models:
@@ -23,6 +23,9 @@ from .forms.forms import ReviewRun, CreateResort, CreateRun, UpdateProfile, Upda
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 
+# Upload handling:
+from werkzeug import secure_filename
+from config import UPLOAD_FOLDER
 # Settings:
 CLIENT_ID= json.loads(open('drtysnow/client_secrets.json', 'r').read())['web']['client_id']
 ################################################################################
@@ -86,8 +89,15 @@ def register_resort():
         name = str(form.name.data)
         location = str(form.location.data)
         summary = str(form.summary.data)
+
+        # process image to local storage:
+        filename = name.replace(' ', '_')
+        filename = filename + '_resort_pic.jpg'
+        picture_path = os.path.join(drtysnow.config['UPLOAD_FOLDER'], filename)
+        form.image.data.save(picture_path)
+
         c = connect()
-        create_resort(c, name, location, summary)
+        create_resort(c, name, location, summary, picture_path)
         flash('Successfully added {0}!'.format(name))
         return redirect('/resort/{0}'.format(name))
 
@@ -258,37 +268,6 @@ def edit_run(run_id):
         return redirect('/login')
 
 
-
-
-
-
-
-'''
-
-            # if this is a valid POST request, process the contents (referencing the
-            # valid list of choices created above). Convert the data to match The
-            # db, and then commit the changes:
-            if form.validate_on_submit():
-                favorite_resort = form.favorite_resort.data
-                fav_id = int(connect().query(Resorts.id).filter_by(
-                                      resort_name = favorite_resort).first()[0])
-                conn = connect()
-                change = conn.query(Users).filter_by(id = login_session['id']).first()
-                change.favourite_resort_id = fav_id
-                change.administrator = form.is_admin.data
-                conn.commit()
-
-                return redirect('/profile/{0}'.format(login_session['id']))
-
-            return render_template('/edit/edit_profile.html', form=form)
-        else:
-            # Protect against URL guessing.
-            return render_template('/error/access_denied.html')
-    else:
-        return redirect('/login')
-'''
-
-
 ################################################################################
 #View Content pages.
 ################################################################################
@@ -360,7 +339,9 @@ def show_resort(resort_name):
                             resort_name = resort_details["resort_name"],
                             resort_summary = resort_details["resort_summary"],
                             resort_location =resort_details["resort_location"],
-                            runs = run_details)
+                            runs = run_details,
+                            resort_pic = str(resort_details["resort_name"]
+                                               ).replace(' ', '_') + '_resort_pic.jpg')
 
 @drtysnow.route('/resort/<string:resort_name>/run/<int:run_id>')
 def show_run(run_id, resort_name):
@@ -711,3 +692,7 @@ def list_resorts():
     names = []
     for resort in resorts:
         names.append('("{0}"),("{0}")'.format(resort.resort_name))
+
+@drtysnow.route('/uploaded-images/<filename>')
+def send_file(filename):
+    return send_from_directory(os.path.join(drtysnow.root_path, 'data/resort_images'), filename)

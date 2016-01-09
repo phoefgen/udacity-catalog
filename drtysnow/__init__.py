@@ -1,4 +1,6 @@
 from flask import Flask
+from werkzeug import secure_filename
+
 
 drtysnow = Flask(__name__)
 
