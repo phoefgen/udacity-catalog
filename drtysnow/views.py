@@ -223,8 +223,8 @@ def edit_profile(user_id):
                 change.favourite_resort_id = fav_id
                 change.administrator = form.is_admin.data
                 conn.commit()
-
-                return redirect('/profile/{0}'.format(login_session['id']))
+                flash('Submitted profile changes, logging out.')
+                return redirect('/logout')
             return render_template('/edit/edit_profile.html', form=form)
         else:
             return reunder_template('/error/access_denied.html')
@@ -309,14 +309,6 @@ def edit_resort(resort_id):
                 # push the changes, then show the new resort profile:
                 return redirect('/resort/{0}'.format(redirect_name))
 
-
-
-                '''
-
-                conn.commit()
-                # push the changes, then show the new run profile:
-                return redirect('/resort/edited/run/{0}'.format(run_id))
-                '''
             # if this is not a valid POST, return a pre-populated field:
             resort_name = connect().query(Resorts).get(resort_id).resort_name
             resort_location = connect().query(Resorts).get(resort_id).resort_location
@@ -332,6 +324,32 @@ def edit_resort(resort_id):
             return render_template('/error/access_denied.html')
     else: # Force login before considering user:
         return redirect('/login')
+
+@drtysnow.route('/delete/<string:del_type>/<int:primary_key>')
+def delete_record(del_type, primary_key):
+    '''
+    Delete an arbitrary record based on URL and user permission:
+    '''
+    if del_type == 'Runs':
+        # get resort ID for post-delete redirect:
+        resort_int = connect().query(Runs).get(primary_key).resort_id
+        resort_str = connect().query(Resorts).get(resort_int).resort_name
+
+        # delete record from db:
+        c = connect()
+        delete_this = c.query(Runs).filter_by(id = primary_key).first()
+        c.delete(delete_this)
+        c.commit()
+        return redirect('/resort/{0}'.format(resort_str))
+
+    if del_type == 'Resorts':
+        # delete resort from db:
+        c = connect()
+        delete_this = c.query(Resorts).filter_by(id = primary_key).first()
+        c.delete(delete_this)
+        c.commit()
+        return redirect('/resorts')
+
 
 ################################################################################
 #View Content pages.
@@ -351,34 +369,51 @@ def show_user(user_id):
     profile_result = connect().query(Users).get(user_id)
     profile_details = profile_result.__dict__
 
-    #translate resort ID into resort string.
-    resort_result = connect().query(Resorts).get(
-                                         profile_details['favourite_resort_id'])
-    resort_details = resort_result.__dict__
+    # if users favorite resort no longer exists, handle gracefully:
+    try:
+        #translate resort ID into resort string.
+        resort_result = connect().query(Resorts).get(
+                                             profile_details['favourite_resort_id'])
+        resort_details = resort_result.__dict__
+    except:
+        resort_details = 'Deleted'
 
     #Generate a list of dict's with reviews by user.
     reviews_result = connect().query(Reviews).filter_by(
                                                         user_id = user_id).all()
     review_list = []
     for review in reviews_result:
-        # convert run id to resort name:
-        resort_id  = connect().query(Runs).get(review.run_id).resort_id
-        resort_name = connect().query(Resorts).get(resort_id).resort_name
+        try:# if any data has been deleted, skip.
+            # convert run id to resort name:
+            resort_id  = connect().query(Runs).get(review.run_id).resort_id
+            resort_name = connect().query(Resorts).get(resort_id).resort_name
 
-        r = {}
-        r["resort_name"] = resort_name
-        r["run_name"] = connect().query(Runs).get(review.run_id).run_name
-        r["rating"] = review.rating
-        r["comments"] = review.comments
-        review_list.append(r)
+            r = {}
+            r["resort_name"] = resort_name
+            r["run_name"] = connect().query(Runs).get(review.run_id).run_name
+            r["rating"] = review.rating
+            r["comments"] = review.comments
+            review_list.append(r)
+        except:
+            continue
 
-    return render_template('profile/show_profile.html',
-                               fname = profile_details['first_name'],
-                               lname = profile_details['last_name'],
-                               email = profile_details['email_address'],
-                               favourite_resort = resort_details['resort_name'],
-                               reviews = review_list,
-                               picture = profile_details['user_picture'])
+    try:
+        return render_template('profile/show_profile.html',
+                                   fname = profile_details['first_name'],
+                                   lname = profile_details['last_name'],
+                                   email = profile_details['email_address'],
+                                   favourite_resort = resort_details['resort_name'],
+                                   reviews = review_list,
+                                   picture = profile_details['user_picture'])
+    except:
+        return render_template('profile/show_profile.html',
+                                   fname = profile_details['first_name'],
+                                   lname = profile_details['last_name'],
+                                   email = profile_details['email_address'],
+                                   favourite_resort = 'Deleted',
+                                   reviews = review_list,
+                                   picture = profile_details['user_picture'])
+
 
 @drtysnow.route('/resort/<string:resort_name>')
 def show_resort(resort_name):

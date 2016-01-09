@@ -52,7 +52,9 @@
     {% if session.admin %}
     <div align="right" class="admin">
       <a href="/resort/{{resort_name}}/new_run"> Add Run </a>
-      <a href="/edit/resort/{{resort_id }}"> Edit Resort </a>
+      <a href="/edit/resort/{{resort_id }}"> Edit </a>
+      <a href="/delete/Resorts/{{resort_id}}"> Delete Resort </a>
+
     </div>
     {% endif %}
 
@@ -68,18 +70,20 @@
               <td><strong>Description</strong></td>
             </tr>
             {% for run in runs %}
-            <tr>
-              <TD class="c1"><a href='/resort/{{ resort_name }}/run/{{run["id"]}}'> {{run["run_name"]}}</TD></a>
-              <TD class="c1">
-                {{run["run_description"]}}
-                {% if session.admin %}
-                <span align="right" class="admin">
-                  <a href="/edit/run/{{run.id}}"> --Edit Run </a>
-                </span>
-                {% endif %}
-
-              </TD>
-            </tr>
+              <tr>
+                <TD class="c1"><a href='/resort/{{ resort_name }}/run/{{run["id"]}}'> {{run["run_name"]}}</a>
+                  <br>
+                  {% if session.admin %}
+                  <div class="admin">
+                    <a href="/edit/run/{{run.id}}"> Edit </a>
+                    <a href="/delete/Runs/{{run.id}}"> Delete </a>
+                  </div>
+                  {% endif %}
+                </td>
+                <TD class="c1">
+                  {{run["run_description"]}}
+                </TD>
+              </tr>
             {% endfor %}
           </table>
         </div>
