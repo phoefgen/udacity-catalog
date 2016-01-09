@@ -39,3 +39,8 @@ class CreateRun(Form):
 class UpdateProfile(Form):
     favorite_resort = SelectField('favorite')
     is_admin = BooleanField('is_admin', default=False)
+
+class UpdateRun(Form):
+    run_name = StringField('run_name', validators=[DataRequired()])
+    run_description = TextAreaField('run_description',
+                                                    validators=[DataRequired()])

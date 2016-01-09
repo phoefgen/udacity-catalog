@@ -17,7 +17,7 @@ from db.dbconn import create_reviews, update_entry, delete
 from db.dbsetup import Base, Resorts, Users, Runs, Reviews
 
 # WTForms models:
-from .forms.forms import ReviewRun, CreateResort, CreateRun, UpdateProfile
+from .forms.forms import ReviewRun, CreateResort, CreateRun, UpdateProfile, UpdateRun
 
 # Auth Classes:
 from oauth2client.client import flow_from_clientsecrets
@@ -178,7 +178,7 @@ def edit_profile(user_id):
     # to login, make sure that only the user can edit the profile:
     if 'id' in login_session:
         if (login_session['id'] == user_id) or (login_session['admin']):
-            # handle a valid form submission:
+            # Generate form obj:
             form = UpdateProfile()
 
             # Generate a form with the list of resorts:
@@ -208,6 +208,71 @@ def edit_profile(user_id):
                 fav_id = int(connect().query(Resorts.id).filter_by(
                                       resort_name = favorite_resort).first()[0])
                 conn = connect()
+                change = conn.query(Users).filter_by(id = login_session['id']
+                                                                       ).first()
+                change.favourite_resort_id = fav_id
+                change.administrator = form.is_admin.data
+                conn.commit()
+
+                return redirect('/profile/{0}'.format(login_session['id']))
+            return render_template('/edit/edit_profile.html', form=form)
+        else:
+            return reunder_template('/error/access_denied.html')
+    else:
+        return redirect('/login')
+
+@drtysnow.route('/edit/run/<int:run_id>', methods=['GET','POST'])
+def edit_run(run_id):
+    # only allow admins  edit run profiles. Prompt non-authed users
+    # to login, make sure that only the user can edit the profile:
+    if 'id' in login_session:
+        if (login_session['admin']):
+            form = UpdateRun()
+
+            # handle a valid form submission:
+            # if this is a valid POST request, process the contents:
+            if form.validate_on_submit():
+                # Grab data from form:
+                new_name = form.run_name.data
+                new_description = form.run_description.data
+                # Push it into the db:
+                conn = connect()
+                change = conn.query(Runs).filter_by(id = run_id).first()
+                change.run_name = new_name
+                change.run_description = new_description
+                conn.commit()
+                # push the changes, then show the new run profile:
+                return redirect('/resort/edited/run/{0}'.format(run_id))
+
+            # if this is not a valid POST, return a pre-populated field:
+            run_name = connect().query(Runs).get(run_id).run_name
+            run_description = connect().query(Runs).get(run_id).run_description
+            form.run_name.data = run_name
+            form.run_description.data = run_description
+            return render_template('/edit/edit_run.html', form=form,
+                                                          run_id = run_id)
+
+        else: # Block non-admins from editing:
+            return render_template('/error/access_denied.html')
+    else: # Force login before considering user:
+        return redirect('/login')
+
+
+
+
+
+
+
+'''
+
+            # if this is a valid POST request, process the contents (referencing the
+            # valid list of choices created above). Convert the data to match The
+            # db, and then commit the changes:
+            if form.validate_on_submit():
+                favorite_resort = form.favorite_resort.data
+                fav_id = int(connect().query(Resorts.id).filter_by(
+                                      resort_name = favorite_resort).first()[0])
+                conn = connect()
                 change = conn.query(Users).filter_by(id = login_session['id']).first()
                 change.favourite_resort_id = fav_id
                 change.administrator = form.is_admin.data
@@ -217,9 +282,11 @@ def edit_profile(user_id):
 
             return render_template('/edit/edit_profile.html', form=form)
         else:
-            return reunder_template('/error/access_denied.html')
+            # Protect against URL guessing.
+            return render_template('/error/access_denied.html')
     else:
         return redirect('/login')
+'''
 
 
 ################################################################################
@@ -303,6 +370,7 @@ def show_run(run_id, resort_name):
     run_summary = []
     run_reviews = connect().query(Reviews).filter_by(run_id = run_id).all()
     run_name = connect().query(Runs).get(run_id).run_name
+    run_description = connect().query(Runs).get(run_id).run_description
 
     for review in run_reviews:
         r = {}
@@ -317,7 +385,8 @@ def show_run(run_id, resort_name):
                           run_name = connect().query(Runs).get(run_id).run_name,
                           run_summary = run_summary,
                           run_id = run_id,
-                          resort_name = resort_name)
+                          resort_name = resort_name,
+                          run_description = run_description)
 
 @drtysnow.route('/resorts')
 def show_all_resorts():

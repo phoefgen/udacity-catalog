@@ -1,0 +1,53 @@
+<!-- This page displays an edit form for a specified resort #-->
+{% extends "/all_pages/master_layout.html" %}
+
+{% block header %}
+  {% include "all_pages/header.html"%}
+  <!--Override settings imported from header with specific CSS files. -->
+ <link rel="stylesheet"
+                href="{{ url_for('static', filename='css/show_resort.css') }}">
+{% endblock %}
+{% block title %}Edit Run{% endblock %}
+
+{% block navbar %}
+  {% include "all_pages/navbar.html"%}
+{% endblock %}
+
+{% block content %}
+<div class ="bumper"></div>
+
+<div class="container">
+  <div class = "main_profile">
+    <div class="row">
+      <div class="col-md-12">
+        <h1>Edit profile:</h1>
+      </div>
+    </div>
+    <div class ="row">
+      <div class="col-md-3">
+      </div>
+        <div class= "col-md-9">
+          <form action="http://127.0.0.1:5000/edit/run/{{ run_id }}"
+                                                                  method="post">
+                                                 {{ form.hidden_tag() }}
+              <p><strong>Run Name:</strong>            <br>{{ form.run_name }}</p>
+              <p><strong>Run Description:</strong>            <br>{{ form.run_description }}</p>
+              <br>
+              <input type="submit" value="submit">
+          </form>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endblock content %}
+    {%block footer %}
+    <div class ="bumper"></div>
+
+      {% include "all_pages/footer.html"%}
+    {% endblock%}
+    {% block scripts %}
+      {% include "all_pages/scripts.html"%}
+    {% endblock %}

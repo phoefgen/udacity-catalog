@@ -62,3 +62,7 @@ target/
 
 # Auth Details:
 client_secrets.json
+
+# Project specific:
+drtysnow.db
+.gitignore
