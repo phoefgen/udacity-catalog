@@ -4,8 +4,8 @@ import datetime, random, string, httplib2, json, requests, os
 # Flask Classes:
 from drtysnow import drtysnow
 from flask import render_template, flash, redirect, url_for, request
+from flask import make_response, send_from_directory, jsonify
 from flask import session as login_session
-from flask import make_response, send_from_directory
 
 # DB Classes:
 from sqlalchemy import create_engine
@@ -359,7 +359,8 @@ def delete_record(del_type, primary_key):
 def show_user(user_id):
     '''
     Takes an integer from the URL, and populates a profile page for the
-    user with the same ID in the users table.
+    user with the same ID in the users table. Can also return JSON with the
+    ?format='json'
     '''
     # restrict content to registered users.
     if need_login('user'):
@@ -397,6 +398,12 @@ def show_user(user_id):
         except:
             continue
 
+    # Return JSON if requested:
+    if request.args.get('format') == 'json':
+        del profile_details['_sa_instance_state']
+        return jsonify(**profile_details)
+
+    # if not an API Call, render page pending available data discovered earlier.
     try:
         return render_template('profile/show_profile.html',
                                    fname = profile_details['first_name'],
@@ -405,7 +412,7 @@ def show_user(user_id):
                                    favourite_resort = resort_details['resort_name'],
                                    reviews = review_list,
                                    picture = profile_details['user_picture'])
-    except:
+    except: # handle the previous exception catch:
         return render_template('profile/show_profile.html',
                                    fname = profile_details['first_name'],
                                    lname = profile_details['last_name'],
@@ -418,13 +425,13 @@ def show_user(user_id):
 @drtysnow.route('/resort/<string:resort_name>')
 def show_resort(resort_name):
     '''
-    Generates a profile page for the given resort, with a summary of all Runs
+    Generates a profile page for the given resort, with a summary of all Runs.
+    Returns JSON instead of HTML if 'format=json' is set in the URL.
     '''
     # Restrict content to registered users.
     if need_login('none'):
         user = False
 
-    print resort_name
     # Translate the URL to a resort primary key:
     resort_id = (connect().query(Resorts)
                           .filter_by(resort_name = str(resort_name)).first()).id
@@ -434,6 +441,11 @@ def show_resort(resort_name):
 
     # Get details about runs on the specified resort:
     run_details = connect().query(Runs).filter_by(resort_id = resort_id).all()
+
+    # Return JSON if requested:
+    if request.args.get('format') == 'json':
+        del resort_details['_sa_instance_state']
+        return jsonify(**resort_details)
 
     return render_template('profile/show_resort.html',
                             resort_name = resort_details["resort_name"],
@@ -463,8 +475,16 @@ def show_run(run_id, resort_name):
         r["bot_hazard"] = review.bot_hazard
         run_summary.append(r)
 
+    # Return JSON if requested:
+    if request.args.get('format') == 'json':
+        run_return = {'run_name': run_name,
+                       'run_id': run_id,
+                       'resort_name': resort_name,
+                       'run_description': run_description}
+        return jsonify(**run_return)
+
     return render_template('profile/show_run.html',
-                          run_name = connect().query(Runs).get(run_id).run_name,
+                          run_name = run_name,
                           run_summary = run_summary,
                           run_id = run_id,
                           resort_name = resort_name,
@@ -486,6 +506,9 @@ def show_all_resorts():
         r["resort_location"] = resort.resort_location
         resort_brief.append(r)
 
+    if request.args.get('format') == 'json':
+        return jsonify({'all_resorts': resort_brief})
+
     return render_template('profile/show_all_resorts.html',
                           all_resorts = resort_brief)
 
@@ -503,6 +526,8 @@ def find_run():
         names.append(resort.resort_name)
 
     return render_template('profile/select_run.html', resorts=names)
+
+
 
 ################################################################################
 # Login Handling.
@@ -557,7 +582,6 @@ def gconnect():
 
     # Verify the token from google:
     gplus_id = credentials.id_token['sub']
-    print result
     if result['user_id'] != gplus_id:
         response = make_response(json.dumps("Tokens ID doesnt match user ID."),
                                                                             401)
@@ -624,8 +648,7 @@ def gdisconnect():
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
-    print 'result is '
-    print result
+
     if result['status'] == '200':
         del login_session['access_token']
     	del login_session['gplus_id']
@@ -638,14 +661,12 @@ def gdisconnect():
         del login_session['admin']
     	response = make_response(json.dumps('Successfully disconnected.'), 200)
     	response.headers['Content-Type'] = 'application/json'
-        print response
         flash('Logged Out')
         return redirect('/landing')
     else:
 
     	response = make_response(json.dumps('Failed to revoke token for given user.', 400))
     	response.headers['Content-Type'] = 'application/json'
-        print response
     	flash('Failed to logout')
         return redirect('/landing')
 
