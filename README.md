@@ -1,7 +1,8 @@
 ## DRTYsnow
 
-This branch is specifically been structured to comply with the Udacity FSND P3
-
+This repo is specifically been structured to comply with the Udacity FSND P3
+Further dev work is continuing on this in https://github.com/phoefgen/drtysnow, however that repo should not
+be considered in the scope of this submission. 
 
 ## Synopsis
 
@@ -20,16 +21,12 @@ information on the ever changing conditions, and potential hazards on ski runs.
 This is a flask app, with a sqlite3 database back end. Installation is currently
 handled by Vagrant (requires Vagrant 1.5+).
 
-Clone the repo, switch to the Udacity assesment branch with:
-
-  'git checkout Udacity-submission'
-
 change into the generated folder and then:
   'vagrant up'
   'vagrant ssh'
 
 Vagrant will install all dependencies, and init the database. The setup includes
-generating some lorem ipsum data to help with troubleshooting and dev.
+generating some lorem ipsum data to help with troubleshooting, assesment and dev.
 
 If you want to reset the database, with test data run this shell script:
   'drtysnow/test_init.sh'
@@ -61,11 +58,11 @@ Access the site with a web browser on the vagrant host.
 The purpose of the website, is to read reviews and rate ski runs so that you can pick
 the best place on the mountain to ski. At the top level there is a ski resort. A ski
 resort contains a subset of ski paths, or runs, that have individual names. Each ski
-run, has a subset of reviews for that run.
+run, has a subset of prior reviews for that run.
 
 Ski resorts have an associated image with them. There is a single example image included
 with the repo, and a placeholder image for resorts that dont have associated images.
-Uploading an image (View Resort, Edit Resort) will update the image across the site.
+Uploading an image (View Resort/Edit Resort) will update the image across the site.
 
 
 
