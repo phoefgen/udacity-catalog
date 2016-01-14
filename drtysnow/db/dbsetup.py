@@ -1,4 +1,8 @@
-# Create and configure the database and tables
+################################################################################
+''' Create and configure the database and tables '''
+# Defines the arributes of the data model, and generates an empty database file
+# Author: Paul Hoefgen
+################################################################################
 
 import sys
 
@@ -10,6 +14,7 @@ from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
+# This class Defines the DB table that stores records about the resorts.
 class Resorts(Base):
     __tablename__ = 'resorts'
 
@@ -41,7 +46,7 @@ class Resorts(Base):
 
     runs = relationship("Runs", backref="runs")
 
-
+# This class Defines the DB table that stores records about the Users.
 class Users(Base):
     __tablename__ = 'users'
 
@@ -85,6 +90,7 @@ class Users(Base):
 
     resorts = relationship(Resorts)
 
+# This class Defines the DB table that stores records about specifc Runs.
 class Runs(Base):
     __tablename__ = 'runs'
 
@@ -112,7 +118,7 @@ class Runs(Base):
 
 
 
-
+# This class Defines the DB table that stores all the run reviews.
 class Reviews(Base):
     __tablename__ = 'reviews'
     id = Column(

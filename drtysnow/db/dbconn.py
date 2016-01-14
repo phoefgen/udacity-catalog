@@ -1,17 +1,18 @@
-''' Creates a database connection, and provides methods to
-    modify the db tables. Read operations are currently handled in the calling
-    code, directly on the instance that is returned from this class.
-    Author: Paul Hoefgen
-'''
+################################################################################
+''' Connect to a db, and perform CRUD operations '''
+# Creates a database connection, and provides methods to
+# modify the db tables. Read operations are currently handled in the calling
+# code, directly on the instance that is returned from this class.
+# Author: Paul Hoefgen
+################################################################################
 
+# import standard modules:
 from sqlalchemy import create_engine
 from sqlalchemy import update
 from sqlalchemy.orm import sessionmaker
 
+# import custom db models for this project:
 from dbsetup import Base, Resorts, Users, Runs, Reviews
-
-
-'''Connect to a db, and perform CRUD operations'''
 
 def connect():
     ''' Return a DB connection '''
@@ -23,6 +24,7 @@ def connect():
 
 def create_user(db_session, fname, lname, favorite_resort_id,
                                                 admin, email, user_id, picture):
+    ''' Generate a new user row in the drtysnow database '''
     new_user = Users(first_name = fname,
                      last_name = lname,
                      favourite_resort_id = favorite_resort_id,
@@ -35,6 +37,8 @@ def create_user(db_session, fname, lname, favorite_resort_id,
     return
 
 def create_resort(db_session, name, location, summary, picture):
+    ''' Generate a new resort row in the drtysnow database '''
+
     new_resort = Resorts(resort_name=name,
                          resort_location=location,
                          resort_summary=summary,
@@ -45,15 +49,20 @@ def create_resort(db_session, name, location, summary, picture):
     return
 
 def create_run(db_session, run_name, resort_id, run_description):
+    ''' Generate a new run row in the drtysnow database '''
+
     new_run = Runs(run_name = run_name,
                  resort_id = resort_id,
                  run_description = run_description)
+
     db_session.add(new_run)
     db_session.commit()
     return
 
 def create_reviews(db_session, run_id, rating, user_id, top_hazard, mid_hazard,
                                                 bot_hazard, comments, time):
+    ''' Generate a new user row in the drtysnow database '''
+
     new_review = Reviews(run_id = run_id,
                          rating = rating,
                          user_id = user_id,
@@ -61,6 +70,7 @@ def create_reviews(db_session, run_id, rating, user_id, top_hazard, mid_hazard,
                          mid_hazard = mid_hazard,
                          bot_hazard = bot_hazard,
                          comments = comments)
+
     db_session.add(new_review)
     db_session.commit()
     return

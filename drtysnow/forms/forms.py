@@ -1,3 +1,12 @@
+################################################################################
+''' Define the data models for form processing'''
+# Creating the definitions used by wtf forms for CSRF generation, and form
+# validators. 
+#
+# Author: Paul Hoefgen
+################################################################################
+
+
 # import form processors:
 from flask.ext.wtf import Form
 

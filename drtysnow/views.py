@@ -1,3 +1,10 @@
+################################################################################
+''' Define the data models for form processing'''
+# Handling routing and page generation for the flask app.
+#
+# Author: Paul Hoefgen
+################################################################################
+
 # Generic Python Classes:
 import datetime, random, string, httplib2, json, requests, os
 
@@ -28,46 +35,27 @@ from werkzeug import secure_filename
 from config import UPLOAD_FOLDER
 # Settings:
 CLIENT_ID= json.loads(open('drtysnow/client_secrets.json', 'r').read())['web']['client_id']
+
 ################################################################################
 # Landing pages.
 ################################################################################
 
 @drtysnow.route('/')
 @drtysnow.route('/index')
+@drtysnow.route('/landing')
+
 def index():
     '''
-    First page that users hit, after logging into the system. Restricted to
-    users and admins only.
-    '''
-    return render_template('pre_login/cover.html')
-
-
-@drtysnow.route('/landing')
-def landing():
-    '''
-    Handle users that are not logged in, who initially encounter the site.
+    First page that users hit, after logging into the system. Content adapts to
+    logged in and unknown clients.
     '''
     return render_template('pre_login/landing.html')
 
-@drtysnow.route('/prelaunch')
-def prelaunch():
-    '''
-    Returns a teaser page. This is so the site can be hosted on the public
-    internet and log traffic, but not be actually accessable during development.
-    '''
-    return "Pre-launch page Not implemented"
+
 
 ################################################################################
 # Content Creation pages.
 ################################################################################
-
-@drtysnow.route('/<int:user_id>/modify_profile')
-def register_user(user_id):
-    '''
-    Return a form, to allow a user to change there profile options, and then
-     process the results of the form.
-    '''
-    return "Modify {}'s profile page Not implemented".format(user_id)
 
 @drtysnow.route('/register_resort/', methods=['GET', 'POST'])
 def register_resort():
@@ -82,9 +70,7 @@ def register_resort():
     form = CreateResort()
 
     # Check to see if form data is valid. If not, render template
-    # if so, write the form data to the database, and prompt to enter
-    # another resort.
-
+    # if so, write the form data to the database, and display new resort profile
     if form.validate_on_submit():
         name = str(form.name.data)
         location = str(form.location.data)
@@ -183,6 +169,9 @@ def run_review(resort_name, run_id):
 
 @drtysnow.route('/edit/profile/<int:user_id>', methods=['GET','POST'])
 def edit_profile(user_id):
+    '''
+    Allow authorised clients to edit user profiles.
+    '''
 
     # only allow admins and the user to edit profiles. Prompt non-authed users
     # to login, make sure that only the user can edit the profile:
@@ -201,7 +190,8 @@ def edit_profile(user_id):
             for i in resort_unicode:
                 resort_list.append(str(i))
 
-            # rebuild the resort list into a list of tuplesfor WTForms to consume:
+            # rebuild the resort list into a list of tuplesfor WTForms to
+            # consume:
             resort_choices = []
             for resort in resort_list:
                 choice = (resort, resort)
@@ -210,9 +200,10 @@ def edit_profile(user_id):
             form = UpdateProfile()
             form.favorite_resort.choices = resort_choices
 
-            # if this is a valid POST request, process the contents (referencing the
-            # valid list of choices created above). Convert the data to match The
-            # db, and then commit the changes:
+            # if this is a valid POST request, process the contents (referencing
+            # the valid list of choices created above). Convert the data to
+            # match The db, and then commit the changes:
+
             if form.validate_on_submit():
                 favorite_resort = form.favorite_resort.data
                 fav_id = int(connect().query(Resorts.id).filter_by(
@@ -233,6 +224,10 @@ def edit_profile(user_id):
 
 @drtysnow.route('/edit/run/<int:run_id>', methods=['GET','POST'])
 def edit_run(run_id):
+    '''
+    Allow Autorised clients to edit ski runs
+    '''
+
     # only allow admins  edit run profiles. Prompt non-authed users
     # to login, make sure that only the user can edit the profile:
     if 'id' in login_session:
@@ -269,6 +264,10 @@ def edit_run(run_id):
 
 @drtysnow.route('/edit/resort/<int:resort_id>', methods=['GET','POST'])
 def edit_resort(resort_id):
+    '''
+    Allow authorised clients to edit resort details
+    '''
+
     # only allow admins  edit resorts. Prompt non-authed users
     # to login, make sure that only the user can edit the profile:
     if 'id' in login_session:
@@ -301,7 +300,8 @@ def edit_resort(resort_id):
                     # db commit:
                     filename = redirect_name.replace(' ', '_')
                     filename = filename + '_resort_pic.jpg'
-                    picture_path = os.path.join(drtysnow.config['UPLOAD_FOLDER'], filename)
+                    picture_path = os.path.join(drtysnow.config['UPLOAD_FOLDER'],
+                                                                       filename)
                     form.image.data.save(picture_path)
 
                     change.resort_image = picture_path
@@ -311,8 +311,10 @@ def edit_resort(resort_id):
 
             # if this is not a valid POST, return a pre-populated field:
             resort_name = connect().query(Resorts).get(resort_id).resort_name
-            resort_location = connect().query(Resorts).get(resort_id).resort_location
-            resort_summary = connect().query(Resorts).get(resort_id).resort_summary
+            resort_location = connect().query(Resorts).get(
+                                                      resort_id).resort_location
+            resort_summary = connect().query(Resorts).get(
+                                                       resort_id).resort_summary
 
             form.name.data = resort_name
             form.summary.data = resort_summary
@@ -370,14 +372,15 @@ def show_user(user_id):
     profile_result = connect().query(Users).get(user_id)
     profile_details = profile_result.__dict__
 
-    # if users favorite resort no longer exists, handle gracefully:
+    # if users favorite resort no longer exists (has been deleted from the db),
+    # handle gracefully:
     try:
         #translate resort ID into resort string.
         resort_result = connect().query(Resorts).get(
                                              profile_details['favourite_resort_id'])
         resort_details = resort_result.__dict__
     except:
-        resort_details = 'Deleted'
+        resort_details = 'Not Found'
 
     #Generate a list of dict's with reviews by user.
     reviews_result = connect().query(Reviews).filter_by(
@@ -417,7 +420,7 @@ def show_user(user_id):
                                    fname = profile_details['first_name'],
                                    lname = profile_details['last_name'],
                                    email = profile_details['email_address'],
-                                   favourite_resort = 'Deleted',
+                                   favourite_resort = 'Not Found',
                                    reviews = review_list,
                                    picture = profile_details['user_picture'])
 
@@ -510,7 +513,7 @@ def show_all_resorts():
         return jsonify({'all_resorts': resort_brief})
 
     return render_template('profile/show_all_resorts.html',
-                          all_resorts = resort_brief)
+                                                     all_resorts = resort_brief)
 
 @drtysnow.route('/find_run')
 def find_run():
@@ -536,7 +539,7 @@ def find_run():
 @drtysnow.route('/login')
 def login():
     '''
-    generate and store session token:
+    generate and store session token.
     '''
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
             for x in xrange(32))
@@ -670,67 +673,6 @@ def gdisconnect():
     	flash('Failed to logout')
         return redirect('/landing')
 
-
-@drtysnow.route('/fbconnect', methods = ['POST'])
-def fbconnect():
-    # check for forgeries:
-    if request.args.get('state') != login_session['state']:
-        response = make_response(json.dumps('Invalid state paramater'), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return resonse
-    access_token = request.data
-    print "access token: " + access_token
-
-    # upgrade token from single use for auth flow, to stateful session token:
-    # Construct URL for this session:
-    app_id = json.loads(
-                    open('drtysnow/fb_client_secrets.json', 'r').read())['web']['app_id']
-    app_secret = json.loads(
-                open('drtysnow/fb_client_secrets.json', 'r').read())['web']['app_secret']
-    url = 'https://graph.facebook.com/oauth/access_token?\
-                                            grant_type=fb_exchange_token\
-                                            &client_id=%s\
-                                            &client_secret=%s\
-                                            &fb_exchange_token=%s\
-                                            ' % (app_id,app_secret,access_token)
-    # Pull session specific data:
-    h = httplib2.Http()
-    result = h.request(url, 'GET')[1]
-
-    # Use token to get user data:
-    userinfo_url = "https://graph.facebookcom/v2.2/me"
-    # remove expire tag from token:
-    token = result.split("&")[0]
-
-    # Pull user data, store in login session:
-    url = 'https://graph.facebook.com/v2.4/me?%s&fields=name,id,email' % token
-    h = httplib2.Http()
-    result = h.request(url, 'GET')[1]
-    data = json.loads(result)
-    login_session['username'] = data['name']
-    login_session['first_name'] = login_session['username'].split()[0]
-    login_session['last_name'] = login_session['username'].split()[1]
-    login_session['email'] = data['email']
-    login_session['user_id'] = data['id']
-
-    #Get User Pic URL:
-    url = 'https://graph.facebook.com/v2.2/me/picture?%s\
-                                                      &redirect=0\
-                                                      &height=200\
-                                                      &width=200' % token
-    h = httplib2.http()
-    result = h.request(url, 'GET')[1]
-    data = json.loads(result)
-    login_session['picture'] = data['data']['url']
-
-    # check to see if this is a new user, if it is, create a new user account:
-    user_check()
-
-    # provide feedback to the user:
-    flash('{0}, you are now logged in.'.format(login_session['username']))
-    return redirect('/landing')
-
-
 ################################################################################
 # Error Handling.
 ################################################################################
@@ -742,7 +684,6 @@ def page_not_found(e):
     '''
 
     return render_template('error/404.html'), 404
-
 
 ################################################################################
 # Helper Functions:
@@ -774,23 +715,20 @@ def user_check():
     # a user account is persistent across oauth providers.
     if (connect().query(Users).filter_by(
                                  email_address = login_session['email']).first()):
-        print 'User already exists'
-
         # Add custom data from the local DB about this user session:
         login_session['id'] = connect().query(Users).filter_by(
                               email_address = login_session['email']).first().id
         login_session['admin'] = connect().query(Users).filter_by(
                              email_address = login_session['email']).first().administrator
-
         return True
 
     # This is a new user, create profile entry in database. Process user data.
     # there are other user options, these can be modified from the modify form
-    # after user creation.
+    # after user creation. ie, favourite resort.
     first_name = login_session['first_name']
     last_name = login_session['last_name']
     email_address = login_session['email']
-    administrator = False # All users are non-admins, unless explicity added.
+    administrator = False    # users are non-admins, until escalated in the UI.
     user_id = login_session['gplus_id']
     picture = login_session['picture']
 

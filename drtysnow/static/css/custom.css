@@ -1,4 +1,5 @@
-
+/* This CSS is used to override the bootstrap theme, site wide. Its imported by
+all pages. */
 
 footer{
   text-align: center;

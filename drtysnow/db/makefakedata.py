@@ -1,4 +1,13 @@
-# this script populates the drtysnow databases with random test data.
+################################################################################
+''' populates the drtysnow databases with random test data.'''
+# This script populates the database with data to enable troubleshooting and declarative
+# work with data that approaches what reality would look like. A single resort
+# image is created as a demonstration. There are no admin user accounts created.
+# To enable sensible code review, any registered user can escalte themselves
+# to an admin via the edit profile UI.
+#
+# Author: Paul Hoefgen
+################################################################################
 
 import string
 import random
@@ -9,6 +18,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from dbsetup import Base, Users, Resorts, Runs, Reviews
+
+################################################################################
+# Helper functions
+################################################################################
 
 def fakename(count):
     '''Build a fake name string '''
@@ -36,10 +49,12 @@ def lorem(length):
         lorem = lorem + words[random.randrange(1,500)] + " "
     return lorem
 
-''' Fake data to populate the database.'''
+################################################################################
+# These functions create a single row in the specified db table
+################################################################################
 def make_resorts(s, count):
     '''
-    Generate somewhat real looking fake ski resorts
+    Generate a somewhat real looking fake ski resort.
     '''
 
     resort_names =['Apex Mountain',
@@ -72,6 +87,7 @@ def make_resorts(s, count):
     return
 
 def make_users(s, count):
+    ''' Generate a fake user '''
     fullname = fakename(count)
     fullname = fullname.split()
     email = fullname[0] + '.' + fullname[1] + '@fakemail.com'
@@ -91,6 +107,7 @@ def make_users(s, count):
     return
 
 def make_runs(s):
+    ''' Generate a fake ski run'''
     for i in range(10):
         run_name = lorem(1) + " " + lorem(1)
         resort_id = random.randrange(0,9)
@@ -105,6 +122,7 @@ def make_runs(s):
     return
 
 def make_reviews(s):
+    ''' Generate a number of fake run reviews'''
 
     for i in range(10):
         run_id = random.randrange(1,19)
@@ -131,7 +149,7 @@ def make_reviews(s):
 
 
 def main():
-
+    '''Create 10 entries in each table. '''
     engine = create_engine('sqlite:///drtysnow.db')
     Base.metadata.bind = engine
     DBsession = sessionmaker(bind = engine)
