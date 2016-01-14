@@ -41,7 +41,7 @@ Start the dev server with:
 
 ## Site Operation
 
-A dev server runs in the vagrant box, serving files to the world from port 5000.
+A dev server runs in the vagrant box, serving files to the world from localhost port 5000.
 Access the site with a web browser on the vagrant host.
 
   1) Dummy data is dumped at install.
