@@ -1,11 +1,18 @@
+# install system packages:
 apt-get -qqy update
 apt-get -qqy install python-flask python-sqlalchemy
 apt-get -qqy install python-pip
+
+# Install custom modules:
 pip install oauth2client
 pip install requests
 pip install httplib2
 pip install flask-httpauth
 pip install oauth2client
+pip install Flask-WTF
+
+# initialise database:
+python /vagrant/drtysnow/db/dbsetup.py
 
 vagrantTip="[35m[1mThe shared directory is located at /vagrant\nTo access your shared files: cd /vagrant(B[m"
 echo -e $vagrantTip > /etc/motd

@@ -17,8 +17,16 @@ information on the ever changing conditions, and potential hazards on ski runs.
 
 ## Installation
 
-This is a flask app, with a postgres back end. Installation is currently handled
-by vagrant.
+This is a flask app, with a sqlite3 database back end. Installation is currently
+handled by Vagrant.
+
+Clone the repo, switch to the Udacity assesment branch with:
+
+'git checkout Udacity-submission'
+change into the generated folder and then:
+'vagrant up'
+'vagrant ssh'
+
 
 ## API Reference
 
