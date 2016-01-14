@@ -20,4 +20,5 @@ mv drtysnow.db /vagrant/drtysnow/data
 echo '...done'
 
 cd /vagrant/drtysnow
+rm ~/drtysnow.db
 echo 'DB has been reset'

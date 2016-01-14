@@ -18,7 +18,7 @@ information on the ever changing conditions, and potential hazards on ski runs.
 ## Installation
 
 This is a flask app, with a sqlite3 database back end. Installation is currently
-handled by Vagrant.
+handled by Vagrant (requires Vagrant 1.5+).
 
 Clone the repo, switch to the Udacity assesment branch with:
 
