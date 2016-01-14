@@ -1,7 +1,7 @@
 ## DRTYsnow
 
-This project is currently in early development, and does not function at all at
-this stage.
+This branch is specifically been structured to comply with the Udacity FSND P3
+
 
 ## Synopsis
 
@@ -17,7 +17,8 @@ information on the ever changing conditions, and potential hazards on ski runs.
 
 ## Installation
 
-This is a flask app, with a postgres back end. Details to follow.
+This is a flask app, with a postgres back end. Installation is currently handled
+by vagrant.
 
 ## API Reference
 

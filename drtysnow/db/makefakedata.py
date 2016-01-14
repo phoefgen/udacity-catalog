@@ -38,6 +38,10 @@ def lorem(length):
 
 ''' Fake data to populate the database.'''
 def make_resorts(s, count):
+    '''
+    Generate somewhat real looking fake ski resorts
+    '''
+
     resort_names =['Apex Mountain',
                     'Big White',
                     'Blue Mountain',
@@ -56,12 +60,13 @@ def make_resorts(s, count):
                         'Ontario, CAN',
                         'Quebec, CAN',
                         'Colorado, USA']
-
+    resort_image = 'https://placeholdit.imgix.net/~text?txtsize=33&txt=Edit_Resort_Image&w=350&h=300'
     location = resort_locations[random.randint(0,3)]
     summary = lorem(25)
     new_resort = Resorts(resort_name = name,
                          resort_location=location,
-                         resort_summary=summary)
+                         resort_summary=summary,
+                         resort_image=resort_image)
     s.add(new_resort)
     s.commit()
     return

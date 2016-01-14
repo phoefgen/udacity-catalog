@@ -817,4 +817,13 @@ def list_resorts():
 
 @drtysnow.route('/uploaded-images/<filename>')
 def send_file(filename):
-    return send_from_directory(os.path.join(drtysnow.root_path, 'data/resort_images'), filename)
+    path_to_images = os.path.join(drtysnow.root_path, 'data/resort_images')
+
+    # return requested file if it exsits:
+    if os.path.exists(path_to_images + '/' + filename):
+        return send_from_directory(os.path.join(drtysnow.root_path,
+                                                'data/resort_images'), filename)
+
+    # degrade gracefully if file not found:
+    return send_from_directory(os.path.join(drtysnow.root_path,
+                                          'data/resort_images'), 'no_image.png')
