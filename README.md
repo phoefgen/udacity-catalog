@@ -41,6 +41,34 @@ a new db file, without test data, can be generated and installed with:
 Start the dev server with:
   'python run.py'
 
+
+## Site Operation
+
+A dev server runs in the vagrant box, serving files to the world from port 5000.
+Access the site with a web browser on the vagrant host.
+
+  1) Dummy data is dumped at install.
+  2) An unregistered user, can browse the site. An unregistered user cannot
+     review ski runs, create resorts or runs, or view user details.
+  3) Register via Google Oauth, this will create a local account and profile page.
+     you will now be able to leave reviews on exists ski runs, and view your profile page.
+  4) Edit your profile (settings menu) to escalate to an admin user. You may need to
+     manually log out after this operation, and then log back in.
+  5) You can check that you now have admin authority on the profile summary page.
+     As an admin, new options will appear in place to edit, delete, and create all
+     content including ski resorts, ski runs, etc.
+
+The purpose of the website, is to read reviews and rate ski runs so that you can pick
+the best place on the mountain to ski. At the top level there is a ski resort. A ski
+resort contains a subset of ski paths, or runs, that have individual names. Each ski
+run, has a subset of reviews for that run.
+
+Ski resorts have an associated image with them. There is a single example image included
+with the repo, and a placeholder image for resorts that dont have associated images.
+Uploading an image (View Resort, Edit Resort) will update the image across the site.
+
+
+
 ## API Reference
 
 A read only API is presented, that returns data in JSON format.
