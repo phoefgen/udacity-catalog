@@ -21,7 +21,7 @@
       <h1>Create Review: {{ resort_name }}</h1>
     </div>
       <div class= "col-md-8">
-        <form action="http://127.0.0.1:5000/resort/review/{{ resort_name }}/{{ run_id }}/new" method="post">
+        <form action="http://52.24.176.123/resort/review/{{ resort_name }}/{{ run_id }}/new" method="post">
               {{ form.hidden_tag() }}
             <h3>Rating: </h3>{{ form.rating() }}<br>
             <h3>Any Hazards on the way down to watch for?</h3>

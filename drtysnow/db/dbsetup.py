@@ -164,5 +164,5 @@ class Reviews(Base):
     users = relationship(Users)
 
 
-engine = create_engine('sqlite:///drtysnow.db')
+engine = create_engine('sqlite:////var/www/drtysnow/drtysnow/data/drtysnow.db')
 Base.metadata.create_all(engine)

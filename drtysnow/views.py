@@ -34,7 +34,7 @@ from oauth2client.client import FlowExchangeError
 from werkzeug import secure_filename
 from config import UPLOAD_FOLDER
 # Settings:
-CLIENT_ID= json.loads(open('drtysnow/client_secrets.json', 'r').read())['web']['client_id']
+CLIENT_ID= json.loads(open('/var/www/drtysnow/drtysnow/client_secrets.json', 'r').read())['web']['client_id']
 
 ################################################################################
 # Landing pages.
@@ -564,7 +564,7 @@ def gconnect():
     code = request.data
     try:
         # convert the auth code into a credential object.
-        oauth_flow = flow_from_clientsecrets('drtysnow/client_secrets.json', scope='')
+        oauth_flow = flow_from_clientsecrets('/var/www/drtysnow/drtysnow/client_secrets.json', scope='')
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(code)
     except FlowExchangeError:

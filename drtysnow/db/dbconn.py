@@ -16,7 +16,7 @@ from dbsetup import Base, Resorts, Users, Runs, Reviews
 
 def connect():
     ''' Return a DB connection '''
-    engine = create_engine('sqlite:///drtysnow/data/drtysnow.db')
+    engine = create_engine('sqlite:////var/www/drtysnow/drtysnow/data/drtysnow.db')
     Base.metadata.bind = engine
     DBSession = sessionmaker(bind=engine)
     s = DBSession()
